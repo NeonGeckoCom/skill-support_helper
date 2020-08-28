@@ -16,7 +16,7 @@
 # Specialized conversational reconveyance options from Conversation Processing Intelligence Corp.
 # US Patents 2008-2020: US7424516, US20140161250, US20140177813, US8638908, US8068604, US8553852, US10530923, US10530924
 # China Patent: CN102017585  -  Europe Patent: EU2156652  -  Patents Pending
-
+import base64
 import glob
 from shutil import copy
 import os
@@ -64,11 +64,14 @@ class SupportSkill(MycroftSkill):
                     #     return
 
                     self.speak_dialog('one.moment', private=True)
-                    self.send_diagnostic_email(message)
-                    self.speak_dialog('complete', private=True)
+                    try:
+                        self.send_diagnostic_email(message)
+                        self.speak_dialog('complete', private=True)
+                    except Exception as e:
+                        LOG.error(e)
+                        self.speak_dialog("email.error", private=True)
                 except Exception as e:
-                    LOG.debug(str(e))
-
+                    LOG.error(e)
             else:
                 self.speak_dialog('no.email')
 
@@ -83,6 +86,7 @@ class SupportSkill(MycroftSkill):
             self.configuration_available["dirVars"]["logsDir"] + '/*.log'
             ]
 
+        attachments = {}
         # Create Directory for Attachments
         if not os.path.exists(self.configuration_available["dirVars"]["tempDir"] + '/attachments/'):
             os.mkdir(self.configuration_available["dirVars"]["tempDir"] + '/attachments/')
@@ -90,20 +94,30 @@ class SupportSkill(MycroftSkill):
         # Append email to each file and copy to Attachments Directory
         for path in paths:
             for file in glob.glob(path):
-                LOG.debug(file)
-                basename = os.path.basename(os.path.splitext(file)[0])
-                # If file is larger than 20MB, Truncate it
-                if os.path.getsize(file) > 20000000:
-                    with open(file) as f:
-                        log_lines = f.read().split('\n')
-                        log_lines = '\n'.join(log_lines[-5000:])
-                        out = open(self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename +
-                                   '_' + self.preference_user(message)['email'] + '_' + str(datetime.date.today())
-                                   + '_att.txt', 'w+')
-                        out.write(log_lines)
-                else:
-                    copy(file, self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename + '_' +
-                         preference_user['email'] + '_' + str(datetime.date.today()) + '_att.txt')
+                try:
+                    LOG.debug(file)
+                    basename = os.path.basename(os.path.splitext(file)[0])
+                    file_ext = os.path.splitext(file)[1]
+                    # If file is larger than 20MB, Truncate it
+                    if os.path.getsize(file) > 20000000:
+                        with open(file) as f:
+                            log_lines = f.read().split('\n')
+                            log_lines = '\n'.join(log_lines[-5000:])
+                            out = open(self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename +
+                                       '_' + preference_user['email'] + '_' + str(datetime.date.today())
+                                       + '_att.txt', 'w+')
+                            out.write(log_lines)
+                        attachments[f"{basename}.{file_ext}"] = base64.b64encode(log_lines.encode("utf-16"))\
+                            .decode("utf-8")
+                    else:
+                        copy(file, self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename +
+                             '_' + preference_user['email'] + '_' + str(datetime.date.today()) + '_att.txt')
+                        with open(file) as f:
+                            attachments[f"{basename}.{file_ext}"] = base64.b64encode(f.read().encode("utf-16"))\
+                                .decode("utf-8")
+                except Exception as e:
+                    LOG.error(e)
+                    LOG.error(file)
 
         # Draft email here and move to ${config_dirVars_tempDir}/title_email_$(date +%Y-%m-%d).txt
         # with open(email_path, 'a') as body:
@@ -122,7 +136,7 @@ class SupportSkill(MycroftSkill):
         body = f"\nFind attached your requested diagnostics files. You can forward this message to info@neongecko.com "\
                f"with a description of your issue for further support.\n\n-Neon\nDiagnostics sent from "\
                f"{str(self.configuration_available['devVars']['devName'])} on {str(datetime.datetime.now())}"
-        self.send_email(title, body, message)
+        self.send_email(title, body, message, email_addr=preference_user["email"], attachments=attachments)
         # self.bus.emit(Message("neon.email", {"title": title, "email": preference_user['email'], "body": body}))
 
     def stop(self):
