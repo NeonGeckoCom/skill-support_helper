@@ -63,7 +63,7 @@ class SupportSkill(MycroftSkill):
                     #     self.speak_dialog('cancelled')
                     #     return
 
-                    self.speak_dialog('one.moment', private=True)
+                    self.speak_dialog('one_moment', private=True)
                     try:
                         self.send_diagnostic_email(message)
                         self.speak_dialog('complete', private=True)
