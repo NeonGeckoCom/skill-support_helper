@@ -62,8 +62,8 @@ class SupportSkill(MycroftSkill):
                 # if description is None:
                 #     self.speak_dialog('cancelled')
                 #     return
-
-                self.speak_dialog('one_moment', private=True)
+                if self.check_for_signal('CORE_useHesitation', -1):
+                    self.speak_dialog('one_moment', private=True)
                 try:
                     self.send_diagnostic_email(message)
                     self.speak_dialog('complete', private=True)
