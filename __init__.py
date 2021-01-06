@@ -56,22 +56,22 @@ class SupportSkill(MycroftSkill):
             # TODO: Report problem conversation? DM
         else:
             if self.preference_user(message)['email']:
-                try:
-                    # TODO: Get Description from speech and write to email body
-                    # description = self.get_response('ask.description', num_retries=0)
-                    # if description is None:
-                    #     self.speak_dialog('cancelled')
-                    #     return
-
+                # try:
+                # TODO: Get Description from speech and write to email body
+                # description = self.get_response('ask.description', num_retries=0)
+                # if description is None:
+                #     self.speak_dialog('cancelled')
+                #     return
+                if self.check_for_signal('CORE_useHesitation', -1):
                     self.speak_dialog('one_moment', private=True)
-                    try:
-                        self.send_diagnostic_email(message)
-                        self.speak_dialog('complete', private=True)
-                    except Exception as e:
-                        LOG.error(e)
-                        self.speak_dialog("email.error", private=True)
+                try:
+                    self.send_diagnostic_email(message)
+                    self.speak_dialog('complete', private=True)
                 except Exception as e:
                     LOG.error(e)
+                    self.speak_dialog("email.error", private=True)
+                # except Exception as e:
+                #     LOG.error(e)
             else:
                 self.speak_dialog('no.email')
 
