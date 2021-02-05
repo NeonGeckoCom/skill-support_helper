@@ -1,19 +1,19 @@
-# ![](https://0000.us/klatchat/app/files/neon_images/icons/neon_paw.png)Support Helper
+# <img src='https://0000.us/klatchat/app/files/neon_images/icons/neon_skill.png' card_color="#FF8600" width="50" style="vertical-align:bottom">Support Helper
   
-# Summary  
+## Summary  
   
 Provides an option to send current logs via email.
   
-# Requirements  
+## Requirements  
 This skill requires a remote server be configured to receive uploads and send emails, by default this is configured for
 `64.34.186.92`.
   
-# Description  
+## Description  
   
 The skill provides the functionality to truncate and upload Neon logs that are then sent to the user email configured in
 `ngi_user_info.yml`.  
   
-# How to Use  
+## Examples  
   
 First, make your request:  
   
@@ -26,12 +26,12 @@ If you do not have an email address configured, Neon will respond:
 `I don't know your email address. You can tell me by saying 'Neon, my email address is...'`
 
   
-# Location  
+## Location  
   
 
      ${skills}/support-helper.neon
 
-# Files
+## Files
 <details>
 <summary>Click to expand.</summary>
 <br>
@@ -80,11 +80,11 @@ If you do not have an email address configured, Neon will respond:
 </details>
   
 
-# Class Diagram
+## Class Diagram
 [Click Here](https://0000.us/klatchat/app/files/neon_images/class_diagrams/support-helper.png)
   
 
-# Available Intents
+## Available Intents
 <details>
 <summary>Show list</summary>
 <br>
@@ -101,7 +101,7 @@ If you do not have an email address configured, Neon will respond:
 </details>
 
 
-# Examples
+## Details
 
 ### Text
 
@@ -114,13 +114,13 @@ If you do not have an email address configured, Neon will respond:
 ### Video
 
   
-# Troubleshooting
+## Troubleshooting
 If you do not see your troubleshooting email, check your spam folder.
 
-# Contact Support
+## Contact Support
 Use the [link](https://neongecko.com/ContactUs) or [submit an issue on GitHub](https://help.github.com/en/articles/creating-an-issue)
 
-# Credits
+## Credits
 reginaneon [neongeckocom](https://neongecko.com/) Mycroft AI djmcknight358
 
 
