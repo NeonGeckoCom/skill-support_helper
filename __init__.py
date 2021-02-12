@@ -24,7 +24,7 @@ import subprocess
 import datetime
 from mycroft import MycroftSkill, intent_file_handler
 from mycroft.util import LOG
-from NGI.utilities.chat_user_util import get_chat_nickname_from_filename
+# from NGI.utilities.chat_user_util import get_chat_nickname_from_filename
 from mycroft.messagebus.message import Message
 # from mycroft import device
 
@@ -46,12 +46,12 @@ class SupportSkill(MycroftSkill):
         #     return
         self.user_config.check_for_updates()
         self.local_config.check_for_updates()
-        if message.context["mobile"]:
+        if self.request_from_mobile(message):
             self.socket_io_emit("support", "", flac_filename=flac_filename)
             self.speak_dialog('mobile.complete', private=True)
         elif self.server:
             LOG.warning(">>>SUPPORT INTENT<<<")
-            LOG.warning(get_chat_nickname_from_filename(flac_filename))
+            LOG.warning(self.get_utterance_user(message))
             # self.speak_dialog('mobile.complete', private=True)
             # TODO: Report problem conversation? DM
         else:
