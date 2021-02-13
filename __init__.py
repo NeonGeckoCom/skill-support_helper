@@ -1,6 +1,6 @@
 # NEON AI (TM) SOFTWARE, Software Development Kit & Application Development System
 #
-# Copyright 2008-2020 Neongecko.com Inc. | All Rights Reserved
+# Copyright 2008-2021 Neongecko.com Inc. | All Rights Reserved
 #
 # Notice of License - Duplicating this Notice of License near the start of any file containing
 # a derivative of this software is a condition of license for this software.
@@ -14,7 +14,7 @@
 # Authors: Guy Daniels, Daniel McKnight, Regina Bloomstine, Elon Gasper, Richard Leeds
 #
 # Specialized conversational reconveyance options from Conversation Processing Intelligence Corp.
-# US Patents 2008-2020: US7424516, US20140161250, US20140177813, US8638908, US8068604, US8553852, US10530923, US10530924
+# US Patents 2008-2021: US7424516, US20140161250, US20140177813, US8638908, US8068604, US8553852, US10530923, US10530924
 # China Patent: CN102017585  -  Europe Patent: EU2156652  -  Patents Pending
 import base64
 import glob
@@ -24,7 +24,7 @@ import subprocess
 import datetime
 from mycroft import MycroftSkill, intent_file_handler
 from mycroft.util import LOG
-from NGI.utilities.chat_user_util import get_chat_nickname_from_filename
+# from NGI.utilities.chat_user_util import get_chat_nickname_from_filename
 from mycroft.messagebus.message import Message
 # from mycroft import device
 
@@ -46,12 +46,12 @@ class SupportSkill(MycroftSkill):
         #     return
         self.user_config.check_for_updates()
         self.local_config.check_for_updates()
-        if message.context["mobile"]:
+        if self.request_from_mobile(message):
             self.socket_io_emit("support", "", flac_filename=flac_filename)
             self.speak_dialog('mobile.complete', private=True)
         elif self.server:
             LOG.warning(">>>SUPPORT INTENT<<<")
-            LOG.warning(get_chat_nickname_from_filename(flac_filename))
+            LOG.warning(self.get_utterance_user(message))
             # self.speak_dialog('mobile.complete', private=True)
             # TODO: Report problem conversation? DM
         else:
