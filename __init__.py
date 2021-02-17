@@ -47,7 +47,8 @@ class SupportSkill(MycroftSkill):
         self.user_config.check_for_updates()
         self.local_config.check_for_updates()
         if self.request_from_mobile(message):
-            self.socket_io_emit("support", "", flac_filename=flac_filename)
+            self.mobile_skill_intent("stop", {}, message)
+            # self.socket_io_emit("support", "", flac_filename=flac_filename)
             self.speak_dialog('mobile.complete', private=True)
         elif self.server:
             LOG.warning(">>>SUPPORT INTENT<<<")
