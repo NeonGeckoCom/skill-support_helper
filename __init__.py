@@ -36,7 +36,7 @@ class SupportSkill(MycroftSkill):
 
     @intent_file_handler('contact.support.intent')
     def troubleshoot(self, message):
-        flac_filename = message.context["flac_filename"]
+        # flac_filename = message.context["flac_filename"]
         # Get a problem description from the user
 
         # if (not user_words or not any(
