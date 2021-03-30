@@ -89,8 +89,8 @@ class SupportSkill(MycroftSkill):
 
         attachments = {}
         # Create Directory for Attachments
-        if not os.path.exists(self.configuration_available["dirVars"]["tempDir"] + '/attachments/'):
-            os.mkdir(self.configuration_available["dirVars"]["tempDir"] + '/attachments/')
+        # if not os.path.exists(self.configuration_available["dirVars"]["tempDir"] + '/attachments/'):
+        #     os.mkdir(self.configuration_available["dirVars"]["tempDir"] + '/attachments/')
 
         # Append email to each file and copy to Attachments Directory
         for path in paths:
@@ -111,8 +111,8 @@ class SupportSkill(MycroftSkill):
                         attachments[f"{basename}.{file_ext}"] = base64.b64encode(log_lines.encode("utf-16"))\
                             .decode("utf-8")
                     else:
-                        copy(file, self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename +
-                             '_' + preference_user['email'] + '_' + str(datetime.date.today()) + '_att.txt')
+                        # copy(file, self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename +
+                        #      '_' + preference_user['email'] + '_' + str(datetime.date.today()) + '_att.txt')
                         with open(file) as f:
                             attachments[f"{basename}.{file_ext}"] = base64.b64encode(f.read().encode("utf-16"))\
                                 .decode("utf-8")
