@@ -18,21 +18,18 @@
 # China Patent: CN102017585  -  Europe Patent: EU2156652  -  Patents Pending
 import base64
 import glob
-from shutil import copy
 import os
-import subprocess
 import datetime
-from mycroft import MycroftSkill, intent_file_handler
-from mycroft.util import LOG
-# from NGI.utilities.chat_user_util import get_chat_nickname_from_filename
-from mycroft.messagebus.message import Message
-# from mycroft import device
+
+from mycroft import intent_file_handler
+
+from neon_utils.skills.neon_skill import NeonSkill, LOG
 
 
-class SupportSkill(MycroftSkill):
+class SupportSkill(NeonSkill):
 
     def __init__(self):
-        MycroftSkill.__init__(self)
+        super(SupportSkill, self).__init__(name="SupportHelper")
 
     @intent_file_handler('contact.support.intent')
     def troubleshoot(self, message):
