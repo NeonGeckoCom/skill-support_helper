@@ -21,6 +21,8 @@ import glob
 import os
 import datetime
 
+from neon_utils.message_utils import request_from_mobile
+
 from mycroft import intent_file_handler
 
 from neon_utils.skills.neon_skill import NeonSkill, LOG
@@ -43,7 +45,7 @@ class SupportSkill(NeonSkill):
         #     return
         self.user_config.check_for_updates()
         self.local_config.check_for_updates()
-        if self.request_from_mobile(message):
+        if request_from_mobile(message):
             self.mobile_skill_intent("stop", {}, message)
             # self.socket_io_emit("support", "", flac_filename=flac_filename)
             self.speak_dialog('mobile.complete', private=True)
