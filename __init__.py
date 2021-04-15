@@ -103,10 +103,10 @@ class SupportSkill(NeonSkill):
                         with open(file) as f:
                             log_lines = f.read().split('\n')
                             log_lines = '\n'.join(log_lines[-5000:])
-                            out = open(self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename +
-                                       '_' + preference_user['email'] + '_' + str(datetime.date.today())
-                                       + '_att.txt', 'w+')
-                            out.write(log_lines)
+                            # out = open(self.configuration_available["dirVars"]["tempDir"] + '/attachments/' + basename +
+                            #            '_' + preference_user['email'] + '_' + str(datetime.date.today())
+                            #            + '_att.txt', 'w+')
+                            # out.write(log_lines)
                         attachments[f"{basename}.{file_ext}"] = base64.b64encode(log_lines.encode("utf-16"))\
                             .decode("utf-8")
                     else:
