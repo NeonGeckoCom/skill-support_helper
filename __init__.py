@@ -130,7 +130,7 @@ class SupportSkill(NeonSkill):
         title = "Diagnostic Info"
         body = f"\nFind attached your requested diagnostics files. You can forward this message to info@neongecko.com "\
                f"with a description of your issue for further support.\n\n-Neon\nDiagnostics sent from "\
-               f"{str(self.configuration_available['devVars']['devName'])} on {str(datetime.datetime.now())}"
+               f"{str(self.local_config['devVars']['devName'])} on {str(datetime.datetime.now())}"
         self.send_email(title, body, message, email_addr=preference_user["email"], attachments=attachments)
         # self.bus.emit(Message("neon.email", {"title": title, "email": preference_user['email'], "body": body}))
 
