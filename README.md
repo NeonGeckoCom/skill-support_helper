@@ -121,6 +121,10 @@ If you do not see your troubleshooting email, check your spam folder.
 Use the [link](https://neongecko.com/ContactUs) or [submit an issue on GitHub](https://help.github.com/en/articles/creating-an-issue)
 
 ## Credits
-reginaneon [neongeckocom](https://neongecko.com/) Mycroft AI djmcknight358
+[NeonGeckoCom](https://github.com/NeonGeckoCom)
+[reginaneon](https://github.com/reginaneon)
+[NeonDaniel](https://github.com/NeonDaniel)
 
-
+## Tags
+#NeonGecko Original
+#NeonAI
