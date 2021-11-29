@@ -1,6 +1,6 @@
 {
     "title": "Support Helper",
-    "url": "https://github.com/NeonGeckoCom/support-helper.neon",
+    "url": "https://github.com/NeonGeckoCom/skill-support_helper",
     "summary": "Provides an option to send current logs via email.",
     "short_description": "Provides an option to send current logs via email.",
     "description": "The skill provides the functionality to truncate and upload Neon logs that are then sent to the user email configured in `ngi_user_info.yml`.",
@@ -26,14 +26,20 @@
         "arm"
     ],
     "branch": "master",
-    "license": "NeonAI License v1.0",
+    "license": "BSD-3-Clause",
     "icon": "https://0000.us/klatchat/app/files/neon_images/icons/neon_skill.png",
     "category": "",
     "categories": [
         ""
     ],
     "tags": [
-        ""
+        "NeonGecko Original",
+        "NeonAI"
+    ],
+    "credits": [
+        "NeonGeckoCom",
+        "reginaneon",
+        "NeonDaniel"
     ],
     "skillname": "Support Helper",
     "authorname": "NeonGeckoCom",
