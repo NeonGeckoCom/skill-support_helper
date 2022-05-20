@@ -89,7 +89,8 @@ class TestSkill(unittest.TestCase):
         test_message.context["user_profiles"][0]["user"]["email"] = \
             "test@neon.ai"
         self.skill.handle_contact_support(test_message)
-        self.skill.ask_yesno.assert_called_with("confirm_support")
+        self.skill.ask_yesno.assert_called_with("confirm_support",
+                                                {"email": "test@neon.ai"})
         self.skill.speak_dialog.assert_called_with("cancelled", private=True)
         # Contact Support Approved No Details
         self.skill.ask_yesno = Mock(return_value="yes")
