@@ -96,8 +96,7 @@ class TestSkill(unittest.TestCase):
         self.skill.ask_yesno = Mock(return_value="yes")
         self.skill.send_email = Mock()
         self.skill.handle_contact_support(test_message)
-        self.assertEqual(self.skill._get_support_info.call_args[0][0],
-                         test_message)
+        self.skill._get_support_info.assert_called_with(test_message)
         self.skill.send_email.assert_called_with("Neon AI Diagnostics",
                                                  self.skill._format_email_body(
                                                      {"test": True,
@@ -110,8 +109,7 @@ class TestSkill(unittest.TestCase):
         # Contact Support Approved With Details
         self.skill.get_response = Mock(return_value="This is only a test")
         self.skill.handle_contact_support(test_message)
-        self.assertEqual(self.skill._get_support_info.call_args[0][0],
-                         test_message)
+        self.skill._get_support_info.assert_called_with(test_message)
         self.skill.get_response.assert_called_once_with("ask_description",
                                                         num_retries=0)
         self.skill.send_email.assert_called_with(
