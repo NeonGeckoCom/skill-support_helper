@@ -1,1 +1,1 @@
-neon-utils @ git+https://github.com/NeonDaniel/neon-skill-utils@FEAT_MultiUserSettingsCompat
+neon-utils~=0.16,>=0.16.1a6
