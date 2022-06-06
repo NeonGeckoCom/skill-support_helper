@@ -64,7 +64,7 @@ class SupportSkill(NeonSkill):
                           {"email": user_profile["user"]["email"]}) == "yes":
             if user_profile["response_mode"].get("hesitation"):
                 self.speak_dialog("one_moment", private=True)
-            diagnostic_info = self._get_support_info(message)
+            diagnostic_info = self._get_support_info(message, user_profile)
             user_description = self.get_response("ask_description",
                                                  num_retries=0)
             diagnostic_info["user_description"] = user_description
@@ -89,12 +89,13 @@ class SupportSkill(NeonSkill):
                             json_str,
                             self.translate("email_signature")))
 
-    def _get_support_info(self, message: Message) -> dict:
+    def _get_support_info(self, message: Message,
+                          profile: dict = None) -> dict:
         """
         Collect relevant information to include in a support ticket
         :param message: Message associated with support request
         """
-        user_profile = get_user_prefs(message)
+        user_profile = profile or get_user_prefs(message)
         message_context = deepcopy(message.context)
 
         speech_module = self.bus.wait_for_response(
