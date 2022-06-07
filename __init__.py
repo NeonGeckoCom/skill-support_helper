@@ -26,100 +26,110 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import base64
-import glob
-import os
-import datetime
+import json
 
-from neon_utils.message_utils import request_from_mobile
-
-from mycroft import intent_file_handler
-
+from copy import deepcopy
+from datetime import datetime
+from mycroft_bus_client import Message
+from neon_utils.user_utils import get_user_prefs
 from neon_utils.skills.neon_skill import NeonSkill, LOG
+from neon_utils.net_utils import get_ip_address
+
+from mycroft.skills import intent_file_handler
 
 
 class SupportSkill(NeonSkill):
-
     def __init__(self):
         super(SupportSkill, self).__init__(name="SupportHelper")
 
-    @intent_file_handler('contact.support.intent')
-    def troubleshoot(self, message):
-        if request_from_mobile(message):
-            self.mobile_skill_intent("stop", {}, message)
-            # self.socket_io_emit("support", "", flac_filename=flac_filename)
-            self.speak_dialog('mobile.complete', private=True)
-        elif self.server:
-            LOG.warning(">>>SUPPORT INTENT<<<")
-            LOG.warning(self.get_utterance_user(message))
-            # self.speak_dialog('mobile.complete', private=True)
-            # TODO: Report problem conversation? DM
+    @property
+    def support_email(self) -> str:
+        """
+        Email to refer users to for support
+        """
+        return self.settings.get("support_email") or "support@neon.ai"
+
+    @intent_file_handler('contact_support.intent')
+    def handle_contact_support(self, message: Message):
+        """
+        Handle a user request to contact support
+        :param message: Message associated with request
+        """
+        user_profile = get_user_prefs(message)
+        if not user_profile["user"]["email"]:
+            # TODO: Ask to send to support@neon.ai?
+            self.speak_dialog("no_email", private=True)
+            return
+        if self.ask_yesno("confirm_support",
+                          {"email": user_profile["user"]["email"]}) == "yes":
+            if user_profile["response_mode"].get("hesitation"):
+                self.speak_dialog("one_moment", private=True)
+            diagnostic_info = self._get_support_info(message, user_profile)
+            user_description = self.get_response("ask_description",
+                                                 num_retries=0)
+            diagnostic_info["user_description"] = user_description
+            self.send_email(self.translate("email_title"),
+                            self._format_email_body(diagnostic_info),
+                            message, user_profile["user"]["email"])
+            self.speak_dialog("complete",
+                              {"email": user_profile["user"]["email"]},
+                              private=True)
         else:
-            if self.preference_user(message)['email']:
-                # try:
-                # TODO: Get Description from speech and write to email body
-                # description = self.get_response('ask.description', num_retries=0)
-                # if description is None:
-                #     self.speak_dialog('cancelled')
-                #     return
-                if self.check_for_signal('CORE_useHesitation', -1):
-                    self.speak_dialog('one_moment', private=True)
-                try:
-                    self.send_diagnostic_email(message)
-                    self.speak_dialog('complete', private=True)
-                except Exception as e:
-                    LOG.error(e)
-                    self.speak_dialog("email.error", private=True)
-                # except Exception as e:
-                #     LOG.error(e)
-            else:
-                self.speak_dialog('no.email')
+            self.speak_dialog("cancelled", private=True)
 
-    def send_diagnostic_email(self, message):
-        preference_user = self.preference_user(message)
-        # email_path = self.configuration_available["dirVars"]["tempDir"] + '/Diagnostic Info_' + \
-        #     preference_user['email'] + '_' + str(datetime.date.today()) + '.txt'
+    def _format_email_body(self, diagnostics: dict) -> str:
+        """
+        Format the diagnostic data with email dialog and return a string body
+        :param diagnostics: diagnostic data to format into the email
+        :returns: email body to send
+        """
+        json_str = json.dumps(diagnostics, indent=4)
+        return '\n\n'.join((self.translate("email_intro",
+                                           {"email": self.support_email}),
+                            json_str,
+                            self.translate("email_signature")))
 
-        # Define Paths for files that are to be uploaded with diagnostics
-        paths = [
-            self.local_config.path + '/*.yml',
-            self.local_config["dirVars"]["logsDir"] + '/*.log'
-            ]
+    def _get_support_info(self, message: Message,
+                          profile: dict = None) -> dict:
+        """
+        Collect relevant information to include in a support ticket
+        :param message: Message associated with support request
+        """
+        user_profile = profile or get_user_prefs(message)
+        message_context = deepcopy(message.context)
 
-        attachments = {}
-        # Create Directory for Attachments
-        # if not os.path.exists(self.configuration_available["dirVars"]["tempDir"] + '/attachments/'):
-        #     os.mkdir(self.configuration_available["dirVars"]["tempDir"] + '/attachments/')
+        speech_module = self.bus.wait_for_response(
+            Message("mycroft.speech.is_ready"))
+        speech_status = speech_module.data.get("status") if speech_module \
+            else None
 
-        # Append email to each file and copy to Attachments Directory
-        for path in paths:
-            for file in glob.glob(path):
-                try:
-                    LOG.debug(file)
-                    basename = os.path.basename(os.path.splitext(file)[0])
-                    file_ext = os.path.splitext(file)[1]
-                    # If file is larger than 20MB, Truncate it
-                    if os.path.getsize(file) > 20000000:
-                        with open(file) as f:
-                            log_lines = f.read().split('\n')
-                            log_lines = '\n'.join(log_lines[-5000:])
+        audio_module = self.bus.wait_for_response(
+            Message("mycroft.audio.is_ready"))
+        audio_status = audio_module.data.get("status") if audio_module \
+            else None
 
-                        attachments[f"{basename}.{file_ext}"] = base64.b64encode(log_lines.encode("utf-16"))\
-                            .decode("utf-8")
-                    else:
-                        with open(file) as f:
-                            attachments[f"{basename}.{file_ext}"] = base64.b64encode(f.read().encode("utf-16"))\
-                                .decode("utf-8")
-                except Exception as e:
-                    LOG.error(e)
-                    LOG.error(file)
+        skills_module = self.bus.wait_for_response(
+            Message("mycroft.skills.is_ready"))
+        skills_module = skills_module.data.get("status") if skills_module \
+            else None
 
-        # Emit message for core to send this email
-        title = "Diagnostic Info"
-        body = f"\nFind attached your requested diagnostics files. You can forward this message to info@neongecko.com "\
-               f"with a description of your issue for further support.\n\n-Neon\nDiagnostics sent from "\
-               f"{str(self.local_config['devVars']['devName'])} on {str(datetime.datetime.now())}"
-        self.send_email(title, body, message, email_addr=preference_user["email"], attachments=attachments)
+        loaded_skills = self.bus.wait_for_response(
+            Message("skillmanager.list"), "mycroft.skills.list"
+        )
+        loaded_skills = loaded_skills.data if loaded_skills else None
+
+        core_device_ip = get_ip_address()
+
+        return {
+            "user_profile": user_profile,
+            "message_context": message_context,
+            "module_status": {"speech": speech_status,
+                              "audio": audio_status,
+                              "skills": skills_module},
+            "loaded_skills": loaded_skills,
+            "host_device": {"ip": core_device_ip},
+            "generated_time_utc": datetime.utcnow().isoformat()
+        }
 
     def stop(self):
         pass
