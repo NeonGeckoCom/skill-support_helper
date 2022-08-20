@@ -32,7 +32,7 @@ from copy import deepcopy
 from datetime import datetime
 from mycroft_bus_client import Message
 from neon_utils.user_utils import get_user_prefs
-from neon_utils.skills.neon_skill import NeonSkill, LOG
+from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.net_utils import get_ip_address
 
 from mycroft.skills import intent_file_handler
