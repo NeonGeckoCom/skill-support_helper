@@ -5,14 +5,15 @@
     "short_description": "Get diagnostic information sent via email.",
     "description": "The skill provides the functionality to get core module status information and message information, including user profile information, sent to the user via email.",
     "examples": [
-        "create a troubleshooting package"
+        "Create a troubleshooting package.",
+        "Create a support ticket."
     ],
     "desktopFile": false,
     "warning": "",
     "systemDeps": false,
     "requirements": {
         "python": [
-            "neon-utils>=0.17,<2.0.0"
+            "neon-utils~=1.1"
         ],
         "system": {},
         "skill": []
