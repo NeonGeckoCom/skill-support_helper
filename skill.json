@@ -5,7 +5,8 @@
     "short_description": "Get diagnostic information sent via email.",
     "description": "The skill provides the functionality to get core module status information and message information, including user profile information, sent to the user via email.",
     "examples": [
-        "create a troubleshooting package"
+        "Create a troubleshooting package.",
+        "Create a support ticket."
     ],
     "desktopFile": false,
     "warning": "",

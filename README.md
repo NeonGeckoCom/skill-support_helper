@@ -8,7 +8,8 @@ The skill provides the functionality to get core module status information and
 message information, including user profile information, sent to the user via email.
   
 ## Examples
-- "create a troubleshooting package"
+- "Create a troubleshooting package."
+- "Create a support ticket."
 
 ## Troubleshooting
 If you do not see your troubleshooting email, check your spam folder.
