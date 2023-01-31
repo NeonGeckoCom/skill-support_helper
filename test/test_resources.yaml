@@ -1,0 +1,31 @@
+# Specify resources to test here.
+
+# Specify languages to be tested
+languages:
+  - "en-us"
+
+# vocab is lowercase .voc file basenames
+vocab:
+  - contact_support.intent
+
+# dialog is .dialog file basenames (case-sensitive)
+dialog:
+  - ask_description
+  - cancelled
+  - complete
+  - confirm_support
+  - email.error
+  - email_intro
+  - email_signature
+  - email_title
+  - no_email
+  - one_moment
+  - support
+# regex entities, not necessarily filenames
+regex: []
+intents:
+  # Padatious intents are the `.intent` file names
+  padatious:
+    - contact_support.intent
+  # Adapt intents are the name passed to the constructor
+  adapt: []
