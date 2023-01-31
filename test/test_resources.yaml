@@ -14,7 +14,6 @@ dialog:
   - cancelled
   - complete
   - confirm_support
-  - email.error
   - email_intro
   - email_signature
   - email_title
