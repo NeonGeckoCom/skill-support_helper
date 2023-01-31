@@ -210,7 +210,10 @@ class TestSkill(unittest.TestCase):
                                        "message_context": test_message.context,
                                        "module_status": {"speech": None,
                                                          "audio": None,
-                                                         "skills": None},
+                                                         "skills": None,
+                                                         "gui": None,
+                                                         "enclosure": None,
+                                                         "admin": None},
                                        "loaded_skills": None,
                                        "host_device": {"ip": get_ip_address()},
                                        "generated_time_utc": diag_time
