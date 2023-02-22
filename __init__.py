@@ -38,7 +38,9 @@ from neon_utils.user_utils import get_user_prefs
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.net_utils import get_ip_address
 from neon_utils.file_utils import encode_file_to_base64_string
+from ovos_utils import classproperty
 from ovos_utils.log import LOG
+from ovos_utils.process_utils import RuntimeRequirements
 
 from mycroft.skills import intent_file_handler
 
@@ -46,6 +48,18 @@ from mycroft.skills import intent_file_handler
 class SupportSkill(NeonSkill):
     def __init__(self):
         super(SupportSkill, self).__init__(name="SupportHelper")
+
+    @classproperty
+    def runtime_requirements(self):
+        return RuntimeRequirements(network_before_load=False,
+                                   internet_before_load=False,
+                                   gui_before_load=False,
+                                   requires_internet=True,
+                                   requires_network=True,
+                                   requires_gui=False,
+                                   no_internet_fallback=False,
+                                   no_network_fallback=False,
+                                   no_gui_fallback=True)
 
     @property
     def support_email(self) -> str:
