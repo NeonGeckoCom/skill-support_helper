@@ -28,6 +28,8 @@
 
 import unittest
 import os
+import json
+import yaml
 
 from os import mkdir
 from os.path import dirname, join, exists, isfile
@@ -36,6 +38,9 @@ from ovos_utils.messagebus import FakeBus
 from mycroft_bus_client import Message
 from neon_utils.user_utils import get_default_user_config
 from mycroft.skills.skill_loader import SkillLoader
+
+# Import and initialize installed skill
+from skill_support_helper import SupportSkill as Skill
 
 
 class TestSkill(unittest.TestCase):
