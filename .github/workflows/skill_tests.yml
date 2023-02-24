@@ -12,11 +12,5 @@ jobs:
     uses: neongeckocom/.github/.github/workflows/skill_tests.yml@master
   skill_intent_tests:
     uses: neongeckocom/.github/.github/workflows/skill_test_intents.yml@FEAT_SharedSkillTests
-    with:
-      skill_module: skill_support_helper
-      skill_class: SupportSkill
   skill_resource_tests:
     uses: neongeckocom/.github/.github/workflows/skill_test_resources.yml@FEAT_SharedSkillTests
-    with:
-      skill_module: skill_support_helper
-      skill_class: SupportSkill
