@@ -31,7 +31,7 @@ import json
 from copy import deepcopy
 from datetime import datetime
 from glob import glob
-from os.path import join, basename
+from os.path import join, basename, getsize
 
 from mycroft_bus_client import Message
 from neon_utils.user_utils import get_user_prefs
@@ -112,11 +112,23 @@ class SupportSkill(NeonSkill):
     @staticmethod
     def _parse_attachments(files: list) -> dict:
         """
-        Parse a list of files into a dict of filenames to B64 contents
+        Parse a list of files into a dict of filenames to B64 contents.
+        Truncates log files to 50000 lines if they exceed 1MB as an arbitrary
+        limit that should safely keep all attachments within email provider
+        limits (~10MB-50MB).
         """
         attachments = {}
         for file in files:
             try:
+                byte_size = getsize(file)
+                if byte_size > 1000000:
+                    LOG.info(f"{file} is >1MB, truncating")
+                    with open(file, 'r+') as f:
+                        lines = f.readlines()
+                        f.seek(0)
+                        f.writelines(lines[-50000:])
+                        f.truncate()
+
                 attachments[basename(file)] = encode_file_to_base64_string(file)
             except Exception as e:
                 LOG.exception(e)
