@@ -32,7 +32,7 @@ import json
 import yaml
 
 from os import mkdir
-from os.path import dirname, join, exists, isfile
+from os.path import dirname, join, exists, isfile, getsize
 from mock import Mock
 from ovos_utils.messagebus import FakeBus
 from mycroft_bus_client import Message
@@ -193,6 +193,33 @@ class TestSkill(unittest.TestCase):
             with open(join(test_dir, file), 'r') as f:
                 self.assertEqual(f.read(), test_output)
             os.remove(test_log_file)
+
+        # Test truncated log
+        from uuid import uuid4
+        test_file = join(test_dir, "truncate.log")
+        i = 0
+        with open(test_file, 'w+') as f:
+            i += 1
+            line = str(uuid4()) * 4
+            for i in range(100000):
+                f.write(f'{i} - {line}\n')
+        input_size = int(getsize(test_file))
+        self.assertTrue(input_size > 1000000)
+        parsed = self.skill._parse_attachments([test_file])
+        file = list(parsed.keys())[0]
+        log = list(parsed.values())[0]
+        self.assertEqual(file, "truncate.log")
+        self.assertIsInstance(log, str)
+        test_outfile = join(test_dir, "test_truncate.log")
+        decode_base64_string_to_file(log, test_outfile)
+        with open(test_file, 'r') as f:
+            original = f.readlines()
+        with open(test_outfile, 'r') as f:
+            truncated = f.readlines()
+        self.assertEqual(truncated, original[-50000:])
+        self.assertLess(getsize(test_outfile), input_size)
+        os.remove(test_outfile)
+        os.remove(test_file)
 
     def test_check_service_status(self):
         # TODO
