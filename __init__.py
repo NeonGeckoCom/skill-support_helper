@@ -30,10 +30,17 @@ import json
 
 from copy import deepcopy
 from datetime import datetime
+from glob import glob
+from os.path import join, basename, getsize
+
 from mycroft_bus_client import Message
 from neon_utils.user_utils import get_user_prefs
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.net_utils import get_ip_address
+from neon_utils.file_utils import encode_file_to_base64_string
+from ovos_utils import classproperty
+from ovos_utils.log import LOG
+from ovos_utils.process_utils import RuntimeRequirements
 
 from mycroft.skills import intent_file_handler
 
@@ -41,6 +48,18 @@ from mycroft.skills import intent_file_handler
 class SupportSkill(NeonSkill):
     def __init__(self):
         super(SupportSkill, self).__init__(name="SupportHelper")
+
+    @classproperty
+    def runtime_requirements(self):
+        return RuntimeRequirements(network_before_load=False,
+                                   internet_before_load=False,
+                                   gui_before_load=False,
+                                   requires_internet=True,
+                                   requires_network=True,
+                                   requires_gui=False,
+                                   no_internet_fallback=False,
+                                   no_network_fallback=False,
+                                   no_gui_fallback=True)
 
     @property
     def support_email(self) -> str:
@@ -68,14 +87,52 @@ class SupportSkill(NeonSkill):
             user_description = self.get_response("ask_description",
                                                  num_retries=0)
             diagnostic_info["user_description"] = user_description
-            self.send_email(self.translate("email_title"),
-                            self._format_email_body(diagnostic_info),
-                            message, user_profile["user"]["email"])
-            self.speak_dialog("complete",
-                              {"email": user_profile["user"]["email"]},
-                              private=True)
+            attachment_files = self._parse_attachments(self._get_log_files())
+            if self.send_email(self.translate("email_title"),
+                               self._format_email_body(diagnostic_info),
+                               message, user_profile["user"]["email"],
+                               attachments=attachment_files):
+                self.speak_dialog("complete",
+                                  {"email": user_profile["user"]["email"]},
+                                  private=True)
+                return
+            LOG.error("Email failed to send, retry without attachments")
+            if self.send_email(self.translate("email_title"),
+                               self._format_email_body(diagnostic_info),
+                               message, user_profile["user"]["email"]):
+                self.speak_dialog("complete",
+                                  {"email": user_profile["user"]["email"]},
+                                  private=True)
+            else:
+                LOG.error(f"Email Failed to send!")
+                self.speak_dialog("email_error", private=True)
         else:
             self.speak_dialog("cancelled", private=True)
+
+    @staticmethod
+    def _parse_attachments(files: list) -> dict:
+        """
+        Parse a list of files into a dict of filenames to B64 contents.
+        Truncates log files to 50000 lines if they exceed 1MB as an arbitrary
+        limit that should safely keep all attachments within email provider
+        limits (~10MB-50MB).
+        """
+        attachments = {}
+        for file in files:
+            try:
+                byte_size = getsize(file)
+                if byte_size > 1000000:
+                    LOG.info(f"{file} is >1MB, truncating")
+                    with open(file, 'r+') as f:
+                        lines = f.readlines()
+                        f.seek(0)
+                        f.writelines(lines[-50000:])
+                        f.truncate()
+
+                attachments[basename(file)] = encode_file_to_base64_string(file)
+            except Exception as e:
+                LOG.exception(e)
+        return attachments
 
     def _format_email_body(self, diagnostics: dict) -> str:
         """
@@ -89,6 +146,57 @@ class SupportSkill(NeonSkill):
                             json_str,
                             self.translate("email_signature")))
 
+    def _check_service_status(self, message: Message = None) -> dict:
+        """
+        Query services on the messagebus and report back their status
+        """
+        message = message or Message("get_status")
+
+        speech_module = self.bus.wait_for_response(
+            message.forward("mycroft.speech.is_ready"))
+        speech_status = speech_module.data.get("status") if speech_module \
+            else None
+
+        audio_module = self.bus.wait_for_response(
+            message.forward("mycroft.audio.is_ready"))
+        audio_status = audio_module.data.get("status") if audio_module \
+            else None
+
+        skills_module = self.bus.wait_for_response(
+            message.forward("mycroft.skills.is_ready"))
+        skills_status = skills_module.data.get("status") if skills_module \
+            else None
+
+        gui_module = self.bus.wait_for_response(
+            message.forward("mycroft.gui_service.is_ready"))
+        gui_status = gui_module.data.get("status") if gui_module \
+            else None
+
+        enclosure_module = self.bus.wait_for_response(
+            message.forward("mycroft.PHAL.is_ready")
+        )
+        enclosure_status = enclosure_module.data.get("status") if enclosure_module \
+            else None
+
+        admin_module = self.bus.wait_for_response(
+            message.forward("mycroft.PHAL.admin.is_ready")
+        )
+        admin_status = admin_module.data.get("status") if admin_module \
+            else None
+
+        return {"speech": speech_status,
+                "audio": audio_status,
+                "skills": skills_status,
+                "gui": gui_status,
+                "enclosure": enclosure_status,
+                "admin": admin_status}
+
+    def _get_log_files(self):
+        log_path = LOG.base_path
+        log_files = glob(join(log_path, "*.log"))
+        LOG.info(f"Found log files: {log_files}")
+        return log_files
+
     def _get_support_info(self, message: Message,
                           profile: dict = None) -> dict:
         """
@@ -98,23 +206,8 @@ class SupportSkill(NeonSkill):
         user_profile = profile or get_user_prefs(message)
         message_context = deepcopy(message.context)
 
-        speech_module = self.bus.wait_for_response(
-            Message("mycroft.speech.is_ready"))
-        speech_status = speech_module.data.get("status") if speech_module \
-            else None
-
-        audio_module = self.bus.wait_for_response(
-            Message("mycroft.audio.is_ready"))
-        audio_status = audio_module.data.get("status") if audio_module \
-            else None
-
-        skills_module = self.bus.wait_for_response(
-            Message("mycroft.skills.is_ready"))
-        skills_module = skills_module.data.get("status") if skills_module \
-            else None
-
         loaded_skills = self.bus.wait_for_response(
-            Message("skillmanager.list"), "mycroft.skills.list"
+            message.forward("skillmanager.list"), "mycroft.skills.list"
         )
         loaded_skills = loaded_skills.data if loaded_skills else None
 
@@ -123,9 +216,7 @@ class SupportSkill(NeonSkill):
         return {
             "user_profile": user_profile,
             "message_context": message_context,
-            "module_status": {"speech": speech_status,
-                              "audio": audio_status,
-                              "skills": skills_module},
+            "module_status": self._check_service_status(message),
             "loaded_skills": loaded_skills,
             "host_device": {"ip": core_device_ip},
             "generated_time_utc": datetime.utcnow().isoformat()

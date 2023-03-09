@@ -28,14 +28,19 @@
 
 import unittest
 import os
+import json
+import yaml
 
 from os import mkdir
-from os.path import dirname, join, exists
+from os.path import dirname, join, exists, isfile, getsize
 from mock import Mock
 from ovos_utils.messagebus import FakeBus
 from mycroft_bus_client import Message
 from neon_utils.user_utils import get_default_user_config
 from mycroft.skills.skill_loader import SkillLoader
+
+# Import and initialize installed skill
+from skill_support_helper import SupportSkill as Skill
 
 
 class TestSkill(unittest.TestCase):
@@ -72,7 +77,10 @@ class TestSkill(unittest.TestCase):
 
     def test_handle_contact_support(self):
         real_get_support_info = self.skill._get_support_info
+        real_parse_attachments = self.skill._parse_attachments
+        test_attachments = {'attachment': ''}
         self.skill._get_support_info = Mock(return_value={"test": True})
+        self.skill._parse_attachments = Mock(return_value=test_attachments)
 
         self.skill.ask_yesno = Mock(return_value="no")
 
@@ -95,6 +103,7 @@ class TestSkill(unittest.TestCase):
         # Contact Support Approved No Details
         self.skill.ask_yesno = Mock(return_value="yes")
         self.skill.send_email = Mock()
+        self.skill.send_email.return_value = True
         self.skill.handle_contact_support(test_message)
         self.assertEqual(self.skill._get_support_info.call_args[0][0],
                          test_message)
@@ -103,7 +112,8 @@ class TestSkill(unittest.TestCase):
                                                      {"test": True,
                                                       "user_description": None}
                                                  ),
-                                                 test_message, "test@neon.ai")
+                                                 test_message, "test@neon.ai",
+                                                 attachments=test_attachments)
         self.skill.speak_dialog.assert_called_with("complete",
                                                    {"email": "test@neon.ai"},
                                                    private=True)
@@ -118,12 +128,28 @@ class TestSkill(unittest.TestCase):
             "Neon AI Diagnostics", self.skill._format_email_body(
                 {"test": True,
                  "user_description": "This is only a test"}),
-            test_message, "test@neon.ai")
+            test_message, "test@neon.ai", attachments=test_attachments)
         self.skill.speak_dialog.assert_called_with("complete",
                                                    {"email": "test@neon.ai"},
                                                    private=True)
 
+        # Email failed
+        self.skill.send_email.return_value = False
+        self.skill.handle_contact_support(test_message)
+        self.assertEqual(self.skill._get_support_info.call_args[0][0],
+                         test_message)
+        self.skill.get_response.assert_called_with("ask_description",
+                                                   num_retries=0)
+        self.skill.send_email.assert_called_with(
+            "Neon AI Diagnostics", self.skill._format_email_body(
+                {"test": True,
+                 "user_description": "This is only a test"}),
+            test_message, "test@neon.ai")
+        self.skill.speak_dialog.assert_called_with("email_error",
+                                                   private=True)
+
         self.skill._get_support_info = real_get_support_info
+        self.skill._parse_attachments = real_parse_attachments
 
     def test_format_email_body(self):
         import json
@@ -136,6 +162,68 @@ class TestSkill(unittest.TestCase):
         self.assertIn(self.skill.support_email, parts[0])
         self.assertEqual(json.loads(parts[1]), test_diagnostics)
         self.assertEqual(parts[2], "- Neon AI")
+
+    def test_get_log_files(self):
+        from ovos_utils.log import LOG
+        test_dir = join(dirname(__file__), "logs")
+        real_path = LOG.base_path
+        LOG.base_path = test_dir
+        logs = self.skill._get_log_files()
+        LOG.base_path = real_path
+        self.assertEqual(set(logs), {join(test_dir, "audio.log"),
+                                     join(test_dir, "skills.log")})
+        for log in logs:
+            self.assertTrue(isfile(log))
+            self.assertEqual(dirname(log), test_dir)
+
+        os.remove(join(test_dir, "neon-utils.log"))
+
+    def test_parse_attachments(self):
+        from neon_utils.file_utils import decode_base64_string_to_file
+        test_dir = join(dirname(__file__), "logs")
+        log_files = [join(test_dir, "audio.log"), join(test_dir, "skills.log")]
+        parsed = self.skill._parse_attachments(log_files)
+        self.assertEqual(set(parsed.keys()), {'audio.log', 'skills.log'})
+        for file, log in parsed.items():
+            self.assertIsInstance(log, str)
+            test_log_file = join(test_dir, f"test_{file}")
+            decode_base64_string_to_file(log, test_log_file)
+            with open(test_log_file, 'r') as f:
+                test_output = f.read()
+            with open(join(test_dir, file), 'r') as f:
+                self.assertEqual(f.read(), test_output)
+            os.remove(test_log_file)
+
+        # Test truncated log
+        from uuid import uuid4
+        test_file = join(test_dir, "truncate.log")
+        i = 0
+        with open(test_file, 'w+') as f:
+            i += 1
+            line = str(uuid4()) * 4
+            for i in range(100000):
+                f.write(f'{i} - {line}\n')
+        input_size = int(getsize(test_file))
+        self.assertTrue(input_size > 1000000)
+        parsed = self.skill._parse_attachments([test_file])
+        file = list(parsed.keys())[0]
+        log = list(parsed.values())[0]
+        self.assertEqual(file, "truncate.log")
+        self.assertIsInstance(log, str)
+        test_outfile = join(test_dir, "test_truncate.log")
+        decode_base64_string_to_file(log, test_outfile)
+        with open(test_file, 'r') as f:
+            original = f.readlines()
+        with open(test_outfile, 'r') as f:
+            truncated = f.readlines()
+        self.assertEqual(truncated, original[-50000:])
+        self.assertLess(getsize(test_outfile), input_size)
+        os.remove(test_outfile)
+        os.remove(test_file)
+
+    def test_check_service_status(self):
+        # TODO
+        pass
 
     def test_get_support_info(self):
         from datetime import datetime
@@ -154,7 +242,10 @@ class TestSkill(unittest.TestCase):
                                        "message_context": test_message.context,
                                        "module_status": {"speech": None,
                                                          "audio": None,
-                                                         "skills": None},
+                                                         "skills": None,
+                                                         "gui": None,
+                                                         "enclosure": None,
+                                                         "admin": None},
                                        "loaded_skills": None,
                                        "host_device": {"ip": get_ip_address()},
                                        "generated_time_utc": diag_time
