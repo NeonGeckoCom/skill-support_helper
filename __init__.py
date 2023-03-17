@@ -75,12 +75,12 @@ class SupportSkill(NeonSkill):
         :param message: Message associated with request
         """
         user_profile = get_user_prefs(message)
-        if not user_profile["user"]["email"]:
-            # TODO: Ask to send to support@neon.ai?
+        email_addr = user_profile["user"]["email"]
+        if not email_addr:
             self.speak_dialog("no_email", private=True)
-            return
+            email_addr = self.support_email
         if self.ask_yesno("confirm_support",
-                          {"email": user_profile["user"]["email"]}) == "yes":
+                          {"email": email_addr}) == "yes":
             if user_profile["response_mode"].get("hesitation"):
                 self.speak_dialog("one_moment", private=True)
             diagnostic_info = self._get_support_info(message, user_profile)
@@ -90,18 +90,18 @@ class SupportSkill(NeonSkill):
             attachment_files = self._parse_attachments(self._get_log_files())
             if self.send_email(self.translate("email_title"),
                                self._format_email_body(diagnostic_info),
-                               message, user_profile["user"]["email"],
+                               message, email_addr,
                                attachments=attachment_files):
                 self.speak_dialog("complete",
-                                  {"email": user_profile["user"]["email"]},
+                                  {"email": email_addr},
                                   private=True)
                 return
             LOG.error("Email failed to send, retry without attachments")
             if self.send_email(self.translate("email_title"),
                                self._format_email_body(diagnostic_info),
-                               message, user_profile["user"]["email"]):
+                               message, email_addr):
                 self.speak_dialog("complete",
-                                  {"email": user_profile["user"]["email"]},
+                                  {"email": email_addr},
                                   private=True)
             else:
                 LOG.error(f"Email Failed to send!")
