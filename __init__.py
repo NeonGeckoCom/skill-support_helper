@@ -117,6 +117,7 @@ class SupportSkill(NeonSkill):
         Truncates log files to 50000 lines if they exceed 1MB as an arbitrary
         limit that should safely keep all attachments within email provider
         limits (~10MB-50MB).
+        :param files: list of files to include as attachments
         """
         attachments = {}
         for file in files:
