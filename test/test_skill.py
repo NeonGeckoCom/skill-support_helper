@@ -90,9 +90,10 @@ class TestSkill(unittest.TestCase):
         test_message = Message("test", {"utterance": "This is a test"},
                                {"klat_data": True, "username": "test_user",
                                 "user_profiles": [user_config]})
-        # Contact Support No Email
+        # Contact Support No Email Declined
         self.skill.handle_contact_support(test_message)
-        self.skill.speak_dialog.assert_called_with("no_email", private=True)
+        self.skill.speak_dialog.assert_any_call("no_email", private=True)
+
         # Contact Support Declined
         test_message.context["user_profiles"][0]["user"]["email"] = \
             "test@neon.ai"

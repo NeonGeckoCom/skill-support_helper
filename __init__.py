@@ -38,6 +38,7 @@ from neon_utils.user_utils import get_user_prefs
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.net_utils import get_ip_address
 from neon_utils.file_utils import encode_file_to_base64_string
+from neon_utils.parse_utils import validate_email
 from ovos_utils import classproperty
 from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
@@ -75,12 +76,12 @@ class SupportSkill(NeonSkill):
         :param message: Message associated with request
         """
         user_profile = get_user_prefs(message)
-        if not user_profile["user"]["email"]:
-            # TODO: Ask to send to support@neon.ai?
+        email_addr = user_profile["user"]["email"]
+        if not validate_email(email_addr):
             self.speak_dialog("no_email", private=True)
-            return
+            email_addr = self.support_email
         if self.ask_yesno("confirm_support",
-                          {"email": user_profile["user"]["email"]}) == "yes":
+                          {"email": email_addr}) == "yes":
             if user_profile["response_mode"].get("hesitation"):
                 self.speak_dialog("one_moment", private=True)
             diagnostic_info = self._get_support_info(message, user_profile)
@@ -90,18 +91,18 @@ class SupportSkill(NeonSkill):
             attachment_files = self._parse_attachments(self._get_log_files())
             if self.send_email(self.translate("email_title"),
                                self._format_email_body(diagnostic_info),
-                               message, user_profile["user"]["email"],
+                               message, email_addr,
                                attachments=attachment_files):
                 self.speak_dialog("complete",
-                                  {"email": user_profile["user"]["email"]},
+                                  {"email": email_addr},
                                   private=True)
                 return
             LOG.error("Email failed to send, retry without attachments")
             if self.send_email(self.translate("email_title"),
                                self._format_email_body(diagnostic_info),
-                               message, user_profile["user"]["email"]):
+                               message, email_addr):
                 self.speak_dialog("complete",
-                                  {"email": user_profile["user"]["email"]},
+                                  {"email": email_addr},
                                   private=True)
             else:
                 LOG.error(f"Email Failed to send!")
@@ -116,6 +117,7 @@ class SupportSkill(NeonSkill):
         Truncates log files to 50000 lines if they exceed 1MB as an arbitrary
         limit that should safely keep all attachments within email provider
         limits (~10MB-50MB).
+        :param files: list of files to include as attachments
         """
         attachments = {}
         for file in files:
@@ -172,10 +174,10 @@ class SupportSkill(NeonSkill):
         gui_status = gui_module.data.get("status") if gui_module \
             else None
 
-        enclosure_module = self.bus.wait_for_response(
+        phal_module = self.bus.wait_for_response(
             message.forward("mycroft.PHAL.is_ready")
         )
-        enclosure_status = enclosure_module.data.get("status") if enclosure_module \
+        enclosure_status = phal_module.data.get("status") if phal_module \
             else None
 
         admin_module = self.bus.wait_for_response(
@@ -191,7 +193,8 @@ class SupportSkill(NeonSkill):
                 "enclosure": enclosure_status,
                 "admin": admin_status}
 
-    def _get_log_files(self):
+    @staticmethod
+    def _get_log_files():
         log_path = LOG.base_path
         log_files = glob(join(log_path, "*.log"))
         LOG.info(f"Found log files: {log_files}")
