@@ -261,8 +261,27 @@ class TestSkill(unittest.TestCase):
                                        })
 
     def test_get_attachments(self):
-        # TODO
-        pass
+        real_status = self.skill._check_service_status
+        self.skill._check_service_status = Mock(return_value={'test': True})
+
+        test_message = Message("test", {}, {"content": "something",
+                                            "context": True})
+        test_profile = {"user": {"username": "test_user"},
+                        "data": {"key": "val"}}
+
+        content = self.skill._get_support_info(test_message, test_profile)
+        self.assertEqual(set(content.keys()),
+                         {'user_profile', 'message_context', 'module_status',
+                          'loaded_skills', 'packages', 'host_device',
+                          'generated_time_utc'})
+        self.assertEqual(content['user_profile'], test_profile)
+        self.assertEqual(content['message_context'], test_message.context)
+        self.assertEqual(content['module_status'], {'test': True})
+        self.assertIsInstance(content['packages'], str)
+        self.assertIsInstance(content['host_device']['ip'], str)
+        self.assertIsInstance(content['generated_time_utc'], str)
+
+        self.skill._check_service_status = real_status
 
 
 if __name__ == '__main__':

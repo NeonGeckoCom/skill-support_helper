@@ -224,7 +224,7 @@ class SupportSkill(NeonSkill):
         loaded_skills = loaded_skills.data if loaded_skills else None
 
         core_device_ip = get_ip_address()
-        packages = run(["pip", "list"], capture_output=True)
+        packages = run(["pip", "list"], capture_output=True).stdout.decode()
         return {
             "user_profile": user_profile,
             "message_context": message_context,
