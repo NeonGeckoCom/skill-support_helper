@@ -247,17 +247,21 @@ class TestSkill(unittest.TestCase):
         diagnostics = self.skill._get_support_info(test_message)
         diag_time = diagnostics["generated_time_utc"]
         self.assertIsInstance(datetime.fromisoformat(diag_time), datetime)
+        pip_info = diagnostics["packages"]
+        self.assertIsInstance(pip_info, str)
         self.assertEqual(diagnostics, {"user_profile": user_config,
                                        "message_context": test_message.context,
                                        "module_status": {"speech": None,
                                                          "audio": None,
+                                                         "voice": None,
                                                          "skills": None,
                                                          "gui": None,
                                                          "enclosure": None,
                                                          "admin": None},
                                        "loaded_skills": None,
                                        "host_device": {"ip": get_ip_address()},
-                                       "generated_time_utc": diag_time
+                                       "generated_time_utc": diag_time,
+                                       "packages": pip_info
                                        })
 
     def test_get_attachments(self):

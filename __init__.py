@@ -147,8 +147,8 @@ class SupportSkill(NeonSkill):
         """
         return '\n\n'.join((self.translate("email_intro",
                                            {"email": self.support_email}),
-                            diagnostics.get('user_description',
-                                            "No Description Provided"),
+                            diagnostics.get('user_description') or
+                            "No Description Provided",
                             self.translate("email_signature")))
 
     def _check_service_status(self, message: Message = None) -> dict:
