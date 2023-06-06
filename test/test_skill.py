@@ -200,7 +200,8 @@ class TestSkill(unittest.TestCase):
             decode_base64_string_to_file(log, test_log_file)
             with open(test_log_file, 'r') as f:
                 test_output = f.read()
-            with open(join(test_dir, file), 'r') as f:
+            with open(join(test_dir, file.replace('_log.txt',
+                                                  '.log')), 'r') as f:
                 self.assertEqual(f.read(), test_output)
             os.remove(test_log_file)
 
@@ -218,7 +219,7 @@ class TestSkill(unittest.TestCase):
         parsed = self.skill._parse_attachments([test_file])
         file = list(parsed.keys())[0]
         log = list(parsed.values())[0]
-        self.assertEqual(file, "truncate.log")
+        self.assertEqual(file, "truncate_log.txt")
         self.assertIsInstance(log, str)
         test_outfile = join(test_dir, "test_truncate.log")
         decode_base64_string_to_file(log, test_outfile)

@@ -25,8 +25,8 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import os
 
+import sys
 import yaml
 
 from copy import deepcopy
@@ -226,8 +226,8 @@ class SupportSkill(NeonSkill):
         loaded_skills = loaded_skills.data if loaded_skills else None
 
         core_device_ip = get_ip_address()
-        packages = run(["pip", "list"], capture_output=True,
-                       env=os.environ.copy()).stdout.decode()
+        packages = run([sys.executable, "-m", "pip", "list"],
+                       capture_output=True).stdout.decode()
         return {
             "user_profile": user_profile,
             "message_context": message_context,
