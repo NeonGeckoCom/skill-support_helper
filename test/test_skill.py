@@ -153,15 +153,23 @@ class TestSkill(unittest.TestCase):
         self.skill._parse_attachments = real_parse_attachments
 
     def test_format_email_body(self):
-        import json
-
         test_diagnostics = {"user_profile": "testing",
                             "module_status": {"module": None}}
+        # No description
         body = self.skill._format_email_body(test_diagnostics)
         parts = body.split('\n\n')
         self.assertEqual(len(parts), 3)
         self.assertIn(self.skill.support_email, parts[0])
-        self.assertEqual(json.loads(parts[1]), test_diagnostics)
+        self.assertEqual(parts[1], "No Description Provided")
+        self.assertEqual(parts[2], "- Neon AI")
+
+        # User description provided
+        test_diagnostics['user_description'] = "testing diagnostics"
+        body = self.skill._format_email_body(test_diagnostics)
+        parts = body.split('\n\n')
+        self.assertEqual(len(parts), 3)
+        self.assertIn(self.skill.support_email, parts[0])
+        self.assertEqual(parts[1], test_diagnostics['user_description'])
         self.assertEqual(parts[2], "- Neon AI")
 
     def test_get_log_files(self):
@@ -251,6 +259,10 @@ class TestSkill(unittest.TestCase):
                                        "host_device": {"ip": get_ip_address()},
                                        "generated_time_utc": diag_time
                                        })
+
+    def test_get_attachments(self):
+        # TODO
+        pass
 
 
 if __name__ == '__main__':
