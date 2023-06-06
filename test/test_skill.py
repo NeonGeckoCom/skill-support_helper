@@ -192,7 +192,8 @@ class TestSkill(unittest.TestCase):
         test_dir = join(dirname(__file__), "logs")
         log_files = [join(test_dir, "audio.log"), join(test_dir, "skills.log")]
         parsed = self.skill._parse_attachments(log_files)
-        self.assertEqual(set(parsed.keys()), {'audio.log', 'skills.log'})
+        self.assertEqual(set(parsed.keys()),
+                         {'audio_log.txt', 'skills_log.txt'})
         for file, log in parsed.items():
             self.assertIsInstance(log, str)
             test_log_file = join(test_dir, f"test_{file}")

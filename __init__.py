@@ -25,6 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import os
 
 import yaml
 
@@ -134,7 +135,8 @@ class SupportSkill(NeonSkill):
                         f.writelines(lines[-50000:])
                         f.truncate()
 
-                attachments[basename(file)] = encode_file_to_base64_string(file)
+                attachments[basename(file).replace('.log', '_log.txt')] = \
+                    encode_file_to_base64_string(file)
             except Exception as e:
                 LOG.exception(e)
         return attachments
@@ -224,7 +226,8 @@ class SupportSkill(NeonSkill):
         loaded_skills = loaded_skills.data if loaded_skills else None
 
         core_device_ip = get_ip_address()
-        packages = run(["pip", "list"], capture_output=True).stdout.decode()
+        packages = run(["pip", "list"], capture_output=True,
+                       env=os.environ.copy()).stdout.decode()
         return {
             "user_profile": user_profile,
             "message_context": message_context,
@@ -244,7 +247,7 @@ class SupportSkill(NeonSkill):
         att_files = self._get_log_files()
         tempdir = mkdtemp()
         packages_file = join(tempdir, "python_packages.txt")
-        diagnostics_file = join(tempdir, "diagnostics.yaml")
+        diagnostics_file = join(tempdir, "diagnostics.txt")
 
         # Add `pip list` output to its own file
         with open(packages_file, 'w+') as f:
