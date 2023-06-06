@@ -153,15 +153,23 @@ class TestSkill(unittest.TestCase):
         self.skill._parse_attachments = real_parse_attachments
 
     def test_format_email_body(self):
-        import json
-
         test_diagnostics = {"user_profile": "testing",
                             "module_status": {"module": None}}
+        # No description
         body = self.skill._format_email_body(test_diagnostics)
         parts = body.split('\n\n')
         self.assertEqual(len(parts), 3)
         self.assertIn(self.skill.support_email, parts[0])
-        self.assertEqual(json.loads(parts[1]), test_diagnostics)
+        self.assertEqual(parts[1], "No Description Provided")
+        self.assertEqual(parts[2], "- Neon AI")
+
+        # User description provided
+        test_diagnostics['user_description'] = "testing diagnostics"
+        body = self.skill._format_email_body(test_diagnostics)
+        parts = body.split('\n\n')
+        self.assertEqual(len(parts), 3)
+        self.assertIn(self.skill.support_email, parts[0])
+        self.assertEqual(parts[1], test_diagnostics['user_description'])
         self.assertEqual(parts[2], "- Neon AI")
 
     def test_get_log_files(self):
@@ -184,14 +192,16 @@ class TestSkill(unittest.TestCase):
         test_dir = join(dirname(__file__), "logs")
         log_files = [join(test_dir, "audio.log"), join(test_dir, "skills.log")]
         parsed = self.skill._parse_attachments(log_files)
-        self.assertEqual(set(parsed.keys()), {'audio.log', 'skills.log'})
+        self.assertEqual(set(parsed.keys()),
+                         {'audio_log.txt', 'skills_log.txt'})
         for file, log in parsed.items():
             self.assertIsInstance(log, str)
             test_log_file = join(test_dir, f"test_{file}")
             decode_base64_string_to_file(log, test_log_file)
             with open(test_log_file, 'r') as f:
                 test_output = f.read()
-            with open(join(test_dir, file), 'r') as f:
+            with open(join(test_dir, file.replace('_log.txt',
+                                                  '.log')), 'r') as f:
                 self.assertEqual(f.read(), test_output)
             os.remove(test_log_file)
 
@@ -209,7 +219,7 @@ class TestSkill(unittest.TestCase):
         parsed = self.skill._parse_attachments([test_file])
         file = list(parsed.keys())[0]
         log = list(parsed.values())[0]
-        self.assertEqual(file, "truncate.log")
+        self.assertEqual(file, "truncate_log.txt")
         self.assertIsInstance(log, str)
         test_outfile = join(test_dir, "test_truncate.log")
         decode_base64_string_to_file(log, test_outfile)
@@ -239,18 +249,45 @@ class TestSkill(unittest.TestCase):
         diagnostics = self.skill._get_support_info(test_message)
         diag_time = diagnostics["generated_time_utc"]
         self.assertIsInstance(datetime.fromisoformat(diag_time), datetime)
+        pip_info = diagnostics["packages"]
+        self.assertIsInstance(pip_info, str)
         self.assertEqual(diagnostics, {"user_profile": user_config,
                                        "message_context": test_message.context,
                                        "module_status": {"speech": None,
                                                          "audio": None,
+                                                         "voice": None,
                                                          "skills": None,
                                                          "gui": None,
                                                          "enclosure": None,
                                                          "admin": None},
                                        "loaded_skills": None,
                                        "host_device": {"ip": get_ip_address()},
-                                       "generated_time_utc": diag_time
+                                       "generated_time_utc": diag_time,
+                                       "packages": pip_info
                                        })
+
+    def test_get_attachments(self):
+        real_status = self.skill._check_service_status
+        self.skill._check_service_status = Mock(return_value={'test': True})
+
+        test_message = Message("test", {}, {"content": "something",
+                                            "context": True})
+        test_profile = {"user": {"username": "test_user"},
+                        "data": {"key": "val"}}
+
+        content = self.skill._get_support_info(test_message, test_profile)
+        self.assertEqual(set(content.keys()),
+                         {'user_profile', 'message_context', 'module_status',
+                          'loaded_skills', 'packages', 'host_device',
+                          'generated_time_utc'})
+        self.assertEqual(content['user_profile'], test_profile)
+        self.assertEqual(content['message_context'], test_message.context)
+        self.assertEqual(content['module_status'], {'test': True})
+        self.assertIsInstance(content['packages'], str)
+        self.assertIsInstance(content['host_device']['ip'], str)
+        self.assertIsInstance(content['generated_time_utc'], str)
+
+        self.skill._check_service_status = real_status
 
 
 if __name__ == '__main__':

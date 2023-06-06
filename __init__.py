@@ -26,12 +26,15 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import json
+import sys
+import yaml
 
 from copy import deepcopy
 from datetime import datetime
 from glob import glob
 from os.path import join, basename, getsize
+from subprocess import run
+from tempfile import mkdtemp
 
 from mycroft_bus_client import Message
 from neon_utils.user_utils import get_user_prefs
@@ -88,7 +91,8 @@ class SupportSkill(NeonSkill):
             user_description = self.get_response("ask_description",
                                                  num_retries=0)
             diagnostic_info["user_description"] = user_description
-            attachment_files = self._parse_attachments(self._get_log_files())
+            attachment_files = self._parse_attachments(
+                self._get_attachments(diagnostic_info))
             if self.send_email(self.translate("email_title"),
                                self._format_email_body(diagnostic_info),
                                message, email_addr,
@@ -131,7 +135,8 @@ class SupportSkill(NeonSkill):
                         f.writelines(lines[-50000:])
                         f.truncate()
 
-                attachments[basename(file)] = encode_file_to_base64_string(file)
+                attachments[basename(file).replace('.log', '_log.txt')] = \
+                    encode_file_to_base64_string(file)
             except Exception as e:
                 LOG.exception(e)
         return attachments
@@ -142,10 +147,10 @@ class SupportSkill(NeonSkill):
         :param diagnostics: diagnostic data to format into the email
         :returns: email body to send
         """
-        json_str = json.dumps(diagnostics, indent=4)
         return '\n\n'.join((self.translate("email_intro",
                                            {"email": self.support_email}),
-                            json_str,
+                            diagnostics.get('user_description') or
+                            "No Description Provided",
                             self.translate("email_signature")))
 
     def _check_service_status(self, message: Message = None) -> dict:
@@ -157,6 +162,11 @@ class SupportSkill(NeonSkill):
         speech_module = self.bus.wait_for_response(
             message.forward("mycroft.speech.is_ready"))
         speech_status = speech_module.data.get("status") if speech_module \
+            else None
+
+        voice_module = self.bus.wait_for_response(
+            message.forward("mycroft.voice.is_ready"))
+        voice_status = voice_module.data.get("status") if voice_module \
             else None
 
         audio_module = self.bus.wait_for_response(
@@ -187,6 +197,7 @@ class SupportSkill(NeonSkill):
             else None
 
         return {"speech": speech_status,
+                "voice": voice_status,
                 "audio": audio_status,
                 "skills": skills_status,
                 "gui": gui_status,
@@ -215,15 +226,40 @@ class SupportSkill(NeonSkill):
         loaded_skills = loaded_skills.data if loaded_skills else None
 
         core_device_ip = get_ip_address()
-
+        packages = run([sys.executable, "-m", "pip", "list"],
+                       capture_output=True).stdout.decode()
         return {
             "user_profile": user_profile,
             "message_context": message_context,
             "module_status": self._check_service_status(message),
             "loaded_skills": loaded_skills,
+            "packages": packages,
             "host_device": {"ip": core_device_ip},
             "generated_time_utc": datetime.utcnow().isoformat()
         }
+
+    def _get_attachments(self, info: dict) -> list:
+        """
+        Parse dict information into attachment files for a support email
+        :param info: diagnostic information to parse into attachments
+        :returns: list of output attachment files
+        """
+        att_files = self._get_log_files()
+        tempdir = mkdtemp()
+        packages_file = join(tempdir, "python_packages.txt")
+        diagnostics_file = join(tempdir, "diagnostics.txt")
+
+        # Add `pip list` output to its own file
+        with open(packages_file, 'w+') as f:
+            f.write(info.pop('packages', ""))
+        att_files.append(packages_file)
+
+        # Dump gathered diagnostics to separate file
+        with open(diagnostics_file, 'w+') as f:
+            yaml.dump(info, f)
+        att_files.append(diagnostics_file)
+
+        return att_files
 
     def stop(self):
         pass
