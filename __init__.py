@@ -36,7 +36,7 @@ from os.path import join, basename, getsize
 from subprocess import run
 from tempfile import mkdtemp
 
-from mycroft_bus_client import Message
+from ovos_bus_client import Message
 from neon_utils.user_utils import get_user_prefs
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.net_utils import get_ip_address
