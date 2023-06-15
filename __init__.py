@@ -50,9 +50,6 @@ from mycroft.skills import intent_file_handler
 
 
 class SupportSkill(NeonSkill):
-    def __init__(self):
-        super(SupportSkill, self).__init__(name="SupportHelper")
-
     @classproperty
     def runtime_requirements(self):
         return RuntimeRequirements(network_before_load=False,
@@ -263,7 +260,3 @@ class SupportSkill(NeonSkill):
 
     def stop(self):
         pass
-
-
-def create_skill():
-    return SupportSkill()
