@@ -36,7 +36,7 @@ from os.path import join, basename, getsize
 from subprocess import run
 from tempfile import mkdtemp
 
-from mycroft_bus_client import Message
+from ovos_bus_client import Message
 from neon_utils.user_utils import get_user_prefs
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.net_utils import get_ip_address
@@ -50,9 +50,6 @@ from mycroft.skills import intent_file_handler
 
 
 class SupportSkill(NeonSkill):
-    def __init__(self):
-        super(SupportSkill, self).__init__(name="SupportHelper")
-
     @classproperty
     def runtime_requirements(self):
         return RuntimeRequirements(network_before_load=False,
@@ -263,7 +260,3 @@ class SupportSkill(NeonSkill):
 
     def stop(self):
         pass
-
-
-def create_skill():
-    return SupportSkill()

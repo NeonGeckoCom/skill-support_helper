@@ -1,21 +1,20 @@
 # Changelog
 
-## [0.2.2a3](https://github.com/NeonGeckoCom/skill-support_helper/tree/0.2.2a3) (2023-06-06)
+## [0.3.1a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/0.3.1a2) (2023-06-15)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/0.2.2a2...0.2.2a3)
-
-**Merged pull requests:**
-
-- Move diagnostics to attachments [\#60](https://github.com/NeonGeckoCom/skill-support_helper/pull/60) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.2.2a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/0.2.2a2) (2023-06-06)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/0.2.1...0.2.2a2)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/0.3.1a1...0.3.1a2)
 
 **Merged pull requests:**
 
-- Update GH Automation and setup.py [\#61](https://github.com/NeonGeckoCom/skill-support_helper/pull/61) ([NeonDaniel](https://github.com/NeonDaniel))
-- Update support intent to handle normalized transcriptions [\#58](https://github.com/NeonGeckoCom/skill-support_helper/pull/58) ([NeonDaniel](https://github.com/NeonDaniel))
+- Deprecate `create_skill` method and update `__init__` for best practices [\#64](https://github.com/NeonGeckoCom/skill-support_helper/pull/64) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [0.3.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/0.3.1a1) (2023-06-12)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/0.3.0...0.3.1a1)
+
+**Merged pull requests:**
+
+- Refactor mycroft-messagebus-client to ovos-bus-client [\#63](https://github.com/NeonGeckoCom/skill-support_helper/pull/63) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
