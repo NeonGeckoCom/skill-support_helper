@@ -25,7 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+import shutil
 import sys
 import yaml
 
@@ -141,7 +141,7 @@ class SupportSkill(NeonSkill):
     def _format_email_body(self, diagnostics: dict) -> str:
         """
         Format the diagnostic data with email dialog and return a string body
-        :param diagnostics: diagnostic data to format into the email
+        :param diagnostics: diagnostic data to format into the email.
         :returns: email body to send
         """
         return '\n\n'.join((self.translate("email_intro",
@@ -227,6 +227,7 @@ class SupportSkill(NeonSkill):
                        capture_output=True).stdout.decode()
         return {
             "user_profile": user_profile,
+            "core_config": self.config_core,
             "message_context": message_context,
             "module_status": self._check_service_status(message),
             "loaded_skills": loaded_skills,
@@ -241,8 +242,15 @@ class SupportSkill(NeonSkill):
         :param info: diagnostic information to parse into attachments
         :returns: list of output attachment files
         """
-        att_files = self._get_log_files()
+        log_files = self._get_log_files()
         tempdir = mkdtemp()
+        att_files = list()
+        # Make a temp copy of log files to optionally truncate before sending
+        for log_file in log_files:
+            output_file = join(tempdir, basename(log_file))
+            shutil.copyfile(log_file, output_file)
+            att_files.append(output_file)
+
         packages_file = join(tempdir, "python_packages.txt")
         diagnostics_file = join(tempdir, "diagnostics.txt")
 
