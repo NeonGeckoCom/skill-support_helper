@@ -227,7 +227,6 @@ class SupportSkill(NeonSkill):
                        capture_output=True).stdout.decode()
         return {
             "user_profile": user_profile,
-            "core_config": self.config_core,
             "message_context": message_context,
             "module_status": self._check_service_status(message),
             "loaded_skills": loaded_skills,
@@ -262,7 +261,7 @@ class SupportSkill(NeonSkill):
 
         # Add core config output to its own file
         with open(core_config_file, 'w+') as f:
-            yaml.dump(info.pop('core_config', self.config_core), f)
+            yaml.dump(self.config_core, f)
         att_files.append(core_config_file)
 
         # Dump gathered diagnostics to separate file
