@@ -252,7 +252,7 @@ class SupportSkill(NeonSkill):
 
         packages_file = join(tempdir, "python_packages.txt")
         diagnostics_file = join(tempdir, "diagnostics.txt")
-        core_config_file = join(tempdir, "core_config.yaml")
+        core_config_file = join(tempdir, "core_config.txt")
 
         # Add `pip list` output to its own file
         with open(packages_file, 'w+') as f:
@@ -261,7 +261,7 @@ class SupportSkill(NeonSkill):
 
         # Add core config output to its own file
         with open(core_config_file, 'w+') as f:
-            yaml.dump(self.config_core, f)
+            yaml.dump(dict(self.config_core), f)
         att_files.append(core_config_file)
 
         # Dump gathered diagnostics to separate file
