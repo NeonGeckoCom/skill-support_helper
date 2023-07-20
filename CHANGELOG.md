@@ -1,20 +1,16 @@
 # Changelog
 
-## [0.3.1a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/0.3.1a2) (2023-06-15)
+## [1.0.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.0.1a1) (2023-07-12)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/0.3.1a1...0.3.1a2)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.0.0...1.0.1a1)
 
-**Merged pull requests:**
+**Fixed bugs:**
 
-- Deprecate `create_skill` method and update `__init__` for best practices [\#64](https://github.com/NeonGeckoCom/skill-support_helper/pull/64) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.3.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/0.3.1a1) (2023-06-12)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/0.3.0...0.3.1a1)
+- \[BUG\] Attachment Size Limit [\#66](https://github.com/NeonGeckoCom/skill-support_helper/issues/66)
 
 **Merged pull requests:**
 
-- Refactor mycroft-messagebus-client to ovos-bus-client [\#63](https://github.com/NeonGeckoCom/skill-support_helper/pull/63) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update attachment file handling and add core config [\#67](https://github.com/NeonGeckoCom/skill-support_helper/pull/67) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
