@@ -25,6 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import shutil
 import sys
 import yaml
@@ -32,7 +33,7 @@ import yaml
 from copy import deepcopy
 from datetime import datetime
 from glob import glob
-from os.path import join, basename, getsize
+from os.path import join, basename, getsize, isfile
 from subprocess import run
 from tempfile import mkdtemp
 
@@ -45,11 +46,14 @@ from neon_utils.parse_utils import validate_email
 from ovos_utils import classproperty
 from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
-
-from mycroft.skills import intent_file_handler
+from ovos_workshop.decorators import intent_file_handler
 
 
 class SupportSkill(NeonSkill):
+    def __init__(self, **kwargs):
+        NeonSkill.__init__(self, **kwargs)
+        self.extra_diagnostic_files = ['/opt/neon/build_info.json']
+
     @classproperty
     def runtime_requirements(self):
         return RuntimeRequirements(network_before_load=False,
@@ -249,6 +253,12 @@ class SupportSkill(NeonSkill):
             output_file = join(tempdir, basename(log_file))
             shutil.copyfile(log_file, output_file)
             att_files.append(output_file)
+
+        for file in self.extra_diagnostic_files:
+            if isfile(file):
+                output_file = join(tempdir, basename(file))
+                shutil.copyfile(file, output_file)
+                att_files.append(output_file)
 
         packages_file = join(tempdir, "python_packages.txt")
         diagnostics_file = join(tempdir, "diagnostics.txt")
