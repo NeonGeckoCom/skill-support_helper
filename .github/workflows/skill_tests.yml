@@ -9,9 +9,9 @@ jobs:
   py_build_tests:
     uses: neongeckocom/.github/.github/workflows/python_build_tests.yml@master
   skill_unit_tests:
-    uses: neongeckocom/.github/.github/workflows/skill_tests.yml@FEAT_ConfigurableSkillTests
+    uses: neongeckocom/.github/.github/workflows/skill_tests.yml@master
   skill_intent_tests:
-    uses: neongeckocom/.github/.github/workflows/skill_test_intents.yml@FEAT_ConfigurableSkillTests
+    uses: neongeckocom/.github/.github/workflows/skill_test_intents.yml@master
     with:
       test_padatious: false
       test_padacioso: true
