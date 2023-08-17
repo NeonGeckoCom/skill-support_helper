@@ -10,14 +10,11 @@ jobs:
     uses: neongeckocom/.github/.github/workflows/python_build_tests.yml@master
   skill_unit_tests:
     uses: neongeckocom/.github/.github/workflows/skill_tests.yml@FEAT_ConfigurableSkillTests
-    with:
-      ovos_versions: "[]"
   skill_intent_tests:
     uses: neongeckocom/.github/.github/workflows/skill_test_intents.yml@FEAT_ConfigurableSkillTests
     with:
       test_padatious: false
       test_padacioso: true
-      neon_versions: '[ "3.10" ]'
   skill_resource_tests:
     uses: neongeckocom/.github/.github/workflows/skill_test_resources.yml@master
   skill_install_tests:
