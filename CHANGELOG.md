@@ -1,16 +1,20 @@
 # Changelog
 
-## [1.0.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.0.1a1) (2023-07-12)
+## [1.1.1a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.1.1a2) (2023-09-05)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.0.0...1.0.1a1)
-
-**Fixed bugs:**
-
-- \[BUG\] Attachment Size Limit [\#66](https://github.com/NeonGeckoCom/skill-support_helper/issues/66)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.1.1a1...1.1.1a2)
 
 **Merged pull requests:**
 
-- Update attachment file handling and add core config [\#67](https://github.com/NeonGeckoCom/skill-support_helper/pull/67) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update intent for alternate STT/Phrasing [\#70](https://github.com/NeonGeckoCom/skill-support_helper/pull/70) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.1.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.1.1a1) (2023-08-17)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.1.0...1.1.1a1)
+
+**Merged pull requests:**
+
+- Add more diagnostic files [\#69](https://github.com/NeonGeckoCom/skill-support_helper/pull/69) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
