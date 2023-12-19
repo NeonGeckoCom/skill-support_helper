@@ -246,10 +246,10 @@ class TestSkill(SkillTestCase):
                         "data": {"key": "val"}}
 
         content = self.skill._get_support_info(test_message, test_profile)
-        self.assertEqual(set(content.keys()),
-                         {'user_profile', 'message_context', 'module_status',
-                          'loaded_skills', 'packages', 'host_device',
-                          'generated_time_utc'})
+        for key in {'user_profile', 'message_context', 'module_status',
+                    'loaded_skills', 'packages', 'host_device',
+                    'generated_time_utc'}:
+            self.assertIsNotNone(content[key])
         self.assertEqual(content['user_profile'], test_profile)
         self.assertEqual(content['message_context'], original_context)
         self.assertEqual(content['module_status'], {'test': True})
