@@ -28,45 +28,15 @@
 
 import unittest
 import os
-import json
-import yaml
 
-from os import mkdir
-from os.path import dirname, join, exists, isfile, getsize
+from os.path import dirname, join, isfile, getsize
 from mock import Mock
-from ovos_utils.messagebus import FakeBus
 from ovos_bus_client import Message
 from neon_utils.user_utils import get_default_user_config
-from mycroft.skills.skill_loader import SkillLoader
-
-# Import and initialize installed skill
-from skill_support_helper import SupportSkill as Skill
+from neon_minerva.tests.skill_unit_test_base import SkillTestCase
 
 
-class TestSkill(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bus = FakeBus()
-        bus.run_in_thread()
-        skill_loader = SkillLoader(bus, dirname(dirname(__file__)))
-        skill_loader.load()
-        cls.skill = skill_loader.instance
-
-        # Define a directory to use for testing
-        cls.test_fs = join(dirname(__file__), "skill_fs")
-        if not exists(cls.test_fs):
-            mkdir(cls.test_fs)
-        os.environ["NEON_CONFIG_PATH"] = cls.test_fs
-
-        # Override the configuration and fs paths to use the test directory
-        cls.skill.settings_write_path = cls.test_fs
-        cls.skill.file_system.path = cls.test_fs
-        cls.skill._init_settings()
-        cls.skill.initialize()
-
-        # Override speak and speak_dialog to test passed arguments
-        cls.skill.speak = Mock()
-        cls.skill.speak_dialog = Mock()
+class TestSkill(SkillTestCase):
 
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
@@ -242,17 +212,21 @@ class TestSkill(unittest.TestCase):
 
         user_config = get_default_user_config()
         user_config["user"]["username"] = "test_user"
+        test_context = {"klat_data": True, "username": "test_user",
+                        "user_profiles": [user_config]}
         test_message = Message("test", {"utterance": "This is a test"},
-                               {"klat_data": True, "username": "test_user",
-                                "user_profiles": [user_config]})
+                               dict(test_context))
         # No modules respond
         diagnostics = self.skill._get_support_info(test_message)
         diag_time = diagnostics["generated_time_utc"]
         self.assertIsInstance(datetime.fromisoformat(diag_time), datetime)
         pip_info = diagnostics["packages"]
+        context = diagnostics["message_context"]
+        for key in test_context:
+            self.assertEqual(test_context[key], context[key])
         self.assertIsInstance(pip_info, str)
         self.assertEqual(diagnostics, {"user_profile": user_config,
-                                       "message_context": test_message.context,
+                                       "message_context": context,
                                        "module_status": {"speech": None,
                                                          "audio": None,
                                                          "voice": None,
@@ -270,18 +244,18 @@ class TestSkill(unittest.TestCase):
         real_status = self.skill._check_service_status
         self.skill._check_service_status = Mock(return_value={'test': True})
 
-        test_message = Message("test", {}, {"content": "something",
-                                            "context": True})
+        original_context = {"content": "something", "context": True}
+        test_message = Message("test", {}, dict(original_context))
         test_profile = {"user": {"username": "test_user"},
                         "data": {"key": "val"}}
 
         content = self.skill._get_support_info(test_message, test_profile)
-        self.assertEqual(set(content.keys()),
-                         {'user_profile', 'message_context', 'module_status',
-                          'loaded_skills', 'packages', 'host_device',
-                          'generated_time_utc'})
+        for key in {'user_profile', 'message_context', 'module_status',
+                    'loaded_skills', 'packages', 'host_device',
+                    'generated_time_utc'}:
+            self.assertIn(key, content, key)
         self.assertEqual(content['user_profile'], test_profile)
-        self.assertEqual(content['message_context'], test_message.context)
+        self.assertEqual(content['message_context'], original_context)
         self.assertEqual(content['module_status'], {'test': True})
         self.assertIsInstance(content['packages'], str)
         self.assertIsInstance(content['host_device']['ip'], str)

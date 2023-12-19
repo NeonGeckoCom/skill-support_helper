@@ -1,20 +1,20 @@
 # Changelog
 
-## [1.1.1a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.1.1a2) (2023-09-05)
+## [1.2.1a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.1a2) (2023-12-19)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.1.1a1...1.1.1a2)
-
-**Merged pull requests:**
-
-- Update intent for alternate STT/Phrasing [\#70](https://github.com/NeonGeckoCom/skill-support_helper/pull/70) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [1.1.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.1.1a1) (2023-08-17)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.1.0...1.1.1a1)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.1a1...1.2.1a2)
 
 **Merged pull requests:**
 
-- Add more diagnostic files [\#69](https://github.com/NeonGeckoCom/skill-support_helper/pull/69) ([NeonDaniel](https://github.com/NeonDaniel))
+- Minor intent update and deprecated reference fix [\#72](https://github.com/NeonGeckoCom/skill-support_helper/pull/72) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.2.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.1a1) (2023-12-19)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.0...1.2.1a1)
+
+**Merged pull requests:**
+
+- Update test case and dependencies [\#73](https://github.com/NeonGeckoCom/skill-support_helper/pull/73) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
