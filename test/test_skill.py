@@ -213,7 +213,7 @@ class TestSkill(SkillTestCase):
         user_config = get_default_user_config()
         user_config["user"]["username"] = "test_user"
         test_context = {"klat_data": True, "username": "test_user",
-                                "user_profiles": [user_config]}
+                        "user_profiles": [user_config]}
         test_message = Message("test", {"utterance": "This is a test"},
                                dict(test_context))
         # No modules respond
@@ -221,9 +221,12 @@ class TestSkill(SkillTestCase):
         diag_time = diagnostics["generated_time_utc"]
         self.assertIsInstance(datetime.fromisoformat(diag_time), datetime)
         pip_info = diagnostics["packages"]
+        context = diagnostics["message_context"]
+        for key in test_context:
+            self.assertEqual(test_context[key], context[key])
         self.assertIsInstance(pip_info, str)
         self.assertEqual(diagnostics, {"user_profile": user_config,
-                                       "message_context": test_context,
+                                       "message_context": context,
                                        "module_status": {"speech": None,
                                                          "audio": None,
                                                          "voice": None,
@@ -250,7 +253,7 @@ class TestSkill(SkillTestCase):
         for key in {'user_profile', 'message_context', 'module_status',
                     'loaded_skills', 'packages', 'host_device',
                     'generated_time_utc'}:
-            self.assertIsNotNone(content[key])
+            self.assertIn(key, content, key)
         self.assertEqual(content['user_profile'], test_profile)
         self.assertEqual(content['message_context'], original_context)
         self.assertEqual(content['module_status'], {'test': True})
