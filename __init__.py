@@ -46,7 +46,7 @@ from neon_utils.parse_utils import validate_email
 from ovos_utils import classproperty
 from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
-from ovos_workshop.decorators import intent_file_handler
+from ovos_workshop.decorators import intent_handler
 
 
 class SupportSkill(NeonSkill):
@@ -73,7 +73,7 @@ class SupportSkill(NeonSkill):
         """
         return self.settings.get("support_email") or "support@neon.ai"
 
-    @intent_file_handler('contact_support.intent')
+    @intent_handler('contact_support.intent')
     def handle_contact_support(self, message: Message):
         """
         Handle a user request to contact support
