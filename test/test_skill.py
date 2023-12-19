@@ -212,9 +212,10 @@ class TestSkill(SkillTestCase):
 
         user_config = get_default_user_config()
         user_config["user"]["username"] = "test_user"
+        test_context = {"klat_data": True, "username": "test_user",
+                                "user_profiles": [user_config]}
         test_message = Message("test", {"utterance": "This is a test"},
-                               {"klat_data": True, "username": "test_user",
-                                "user_profiles": [user_config]})
+                               dict(test_context))
         # No modules respond
         diagnostics = self.skill._get_support_info(test_message)
         diag_time = diagnostics["generated_time_utc"]
@@ -222,7 +223,7 @@ class TestSkill(SkillTestCase):
         pip_info = diagnostics["packages"]
         self.assertIsInstance(pip_info, str)
         self.assertEqual(diagnostics, {"user_profile": user_config,
-                                       "message_context": test_message.context,
+                                       "message_context": test_context,
                                        "module_status": {"speech": None,
                                                          "audio": None,
                                                          "voice": None,
