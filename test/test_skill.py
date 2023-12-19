@@ -240,8 +240,8 @@ class TestSkill(SkillTestCase):
         real_status = self.skill._check_service_status
         self.skill._check_service_status = Mock(return_value={'test': True})
 
-        test_message = Message("test", {}, {"content": "something",
-                                            "context": True})
+        original_context = {"content": "something", "context": True}
+        test_message = Message("test", {}, dict(original_context))
         test_profile = {"user": {"username": "test_user"},
                         "data": {"key": "val"}}
 
@@ -251,7 +251,7 @@ class TestSkill(SkillTestCase):
                           'loaded_skills', 'packages', 'host_device',
                           'generated_time_utc'})
         self.assertEqual(content['user_profile'], test_profile)
-        self.assertEqual(content['message_context'], test_message.context)
+        self.assertEqual(content['message_context'], original_context)
         self.assertEqual(content['module_status'], {'test': True})
         self.assertIsInstance(content['packages'], str)
         self.assertIsInstance(content['host_device']['ip'], str)
