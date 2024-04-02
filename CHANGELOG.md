@@ -1,20 +1,20 @@
 # Changelog
 
-## [1.2.1a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.1a2) (2023-12-19)
+## [1.2.2a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.2a2) (2024-04-02)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.1a1...1.2.1a2)
-
-**Merged pull requests:**
-
-- Minor intent update and deprecated reference fix [\#72](https://github.com/NeonGeckoCom/skill-support_helper/pull/72) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [1.2.1a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.1a1) (2023-12-19)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.0...1.2.1a1)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.2a1...1.2.2a2)
 
 **Merged pull requests:**
 
-- Update test case and dependencies [\#73](https://github.com/NeonGeckoCom/skill-support_helper/pull/73) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update test dependencies [\#76](https://github.com/NeonGeckoCom/skill-support_helper/pull/76) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.2.2a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.2a1) (2024-02-05)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.1...1.2.2a1)
+
+**Merged pull requests:**
+
+- Support ovos-utils 0.1 [\#75](https://github.com/NeonGeckoCom/skill-support_helper/pull/75) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
