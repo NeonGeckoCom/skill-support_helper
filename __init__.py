@@ -130,10 +130,11 @@ class SupportSkill(NeonSkill):
                 byte_size = getsize(file)
                 if byte_size > 1000000:
                     LOG.info(f"{file} is >1MB, truncating")
-                    with open(file, 'r+') as f:
-                        lines = f.readlines()
+                    with open(file, 'rb+') as f:
+                        content = f.read()
+                        trunc = content[-1000000:].split(b'\n', 1)[1]
                         f.seek(0)
-                        f.writelines(lines[-50000:])
+                        f.write(trunc)
                         f.truncate()
 
                 attachments[basename(file).replace('.log', '_log.txt')] = \
