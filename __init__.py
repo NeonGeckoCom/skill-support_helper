@@ -136,7 +136,7 @@ class SupportSkill(NeonSkill):
                         f.seek(0)
                         f.write(trunc)
                         f.truncate()
-
+                LOG.debug(f"{file} is {getsize(file)/1024} MiB")
                 attachments[basename(file).replace('.log', '_log.txt')] = \
                     encode_file_to_base64_string(file)
             except Exception as e:
