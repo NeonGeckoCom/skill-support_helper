@@ -25,7 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+import json
 import shutil
 import sys
 import yaml
@@ -139,9 +139,9 @@ class SupportSkill(NeonSkill):
                 LOG.debug(f"{file} is {getsize(file)/1024/1024} MiB")
                 attachments[basename(file).replace('.log', '_log.txt')] = \
                     encode_file_to_base64_string(file)
-                LOG.debug(f"Attachments size={sys.getsizeof(attachments)/1024/1024} MiB")
             except Exception as e:
                 LOG.exception(e)
+        LOG.debug(f"Attachments Size={len(json.dumps(attachments))}")
         return attachments
 
     def _format_email_body(self, diagnostics: dict) -> str:
