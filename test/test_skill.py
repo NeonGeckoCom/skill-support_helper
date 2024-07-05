@@ -36,6 +36,9 @@ from neon_utils.user_utils import get_default_user_config
 from neon_minerva.tests.skill_unit_test_base import SkillTestCase
 
 
+os.environ["TEST_SKILL_ENTRYPOINT"] = "skill-support_helper.neongeckocom"
+
+
 class TestSkill(SkillTestCase):
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
@@ -196,8 +199,11 @@ class TestSkill(SkillTestCase):
             original = f.readlines()
         with open(test_outfile, 'r') as f:
             truncated = f.readlines()
-        self.assertEqual(truncated, original[-50000:])
-        self.assertLess(getsize(test_outfile), input_size)
+        self.assertTrue(set(truncated) <= set(original))  # truncated is subset
+        self.assertIsInstance(int(truncated[0].split()[0]), int)
+        self.assertEqual(truncated[0].split()[1], '-')
+        self.assertEqual(truncated[-1], original[-1])
+        self.assertLess(getsize(test_outfile), 1000000)
         os.remove(test_outfile)
         os.remove(test_file)
 

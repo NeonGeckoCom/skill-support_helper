@@ -130,12 +130,13 @@ class SupportSkill(NeonSkill):
                 byte_size = getsize(file)
                 if byte_size > 1000000:
                     LOG.info(f"{file} is >1MB, truncating")
-                    with open(file, 'r+') as f:
-                        lines = f.readlines()
+                    with open(file, 'rb+') as f:
+                        content = f.read()
+                        trunc = content[-1000000:].split(b'\n', 1)[1]
                         f.seek(0)
-                        f.writelines(lines[-50000:])
+                        f.write(trunc)
                         f.truncate()
-
+                LOG.debug(f"{file} is {getsize(file)/1024/1024} MiB")
                 attachments[basename(file).replace('.log', '_log.txt')] = \
                     encode_file_to_base64_string(file)
             except Exception as e:
