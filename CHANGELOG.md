@@ -1,20 +1,25 @@
 # Changelog
 
-## [1.2.2a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.2a2) (2024-04-02)
+## [1.2.3a2](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.3a2) (2024-07-05)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.2a1...1.2.2a2)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.3a1...1.2.3a2)
 
-**Merged pull requests:**
+**Fixed bugs:**
 
-- Update test dependencies [\#76](https://github.com/NeonGeckoCom/skill-support_helper/pull/76) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [1.2.2a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.2a1) (2024-02-05)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.1...1.2.2a1)
+- \[BUG\] Attachments missing from support email [\#81](https://github.com/NeonGeckoCom/skill-support_helper/issues/81)
+- \[BUG\] support email cannot be sent  [\#79](https://github.com/NeonGeckoCom/skill-support_helper/issues/79)
 
 **Merged pull requests:**
 
-- Support ovos-utils 0.1 [\#75](https://github.com/NeonGeckoCom/skill-support_helper/pull/75) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update attachment truncation to avoid missing attachments [\#80](https://github.com/NeonGeckoCom/skill-support_helper/pull/80) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.2.3a1](https://github.com/NeonGeckoCom/skill-support_helper/tree/1.2.3a1) (2024-05-20)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-support_helper/compare/1.2.2...1.2.3a1)
+
+**Merged pull requests:**
+
+- Remove deprecated calls to `self.translate` [\#78](https://github.com/NeonGeckoCom/skill-support_helper/pull/78) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 

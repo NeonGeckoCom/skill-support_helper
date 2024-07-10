@@ -94,7 +94,7 @@ class SupportSkill(NeonSkill):
             diagnostic_info["user_description"] = user_description
             attachment_files = self._parse_attachments(
                 self._get_attachments(diagnostic_info))
-            if self.send_email(self.translate("email_title"),
+            if self.send_email(self.resources.render_dialog("email_title"),
                                self._format_email_body(diagnostic_info),
                                message, email_addr,
                                attachments=attachment_files):
@@ -103,7 +103,7 @@ class SupportSkill(NeonSkill):
                                   private=True)
                 return
             LOG.error("Email failed to send, retry without attachments")
-            if self.send_email(self.translate("email_title"),
+            if self.send_email(self.resources.render_dialog("email_title"),
                                self._format_email_body(diagnostic_info),
                                message, email_addr):
                 self.speak_dialog("complete",
@@ -130,12 +130,13 @@ class SupportSkill(NeonSkill):
                 byte_size = getsize(file)
                 if byte_size > 1000000:
                     LOG.info(f"{file} is >1MB, truncating")
-                    with open(file, 'r+') as f:
-                        lines = f.readlines()
+                    with open(file, 'rb+') as f:
+                        content = f.read()
+                        trunc = content[-1000000:].split(b'\n', 1)[1]
                         f.seek(0)
-                        f.writelines(lines[-50000:])
+                        f.write(trunc)
                         f.truncate()
-
+                LOG.debug(f"{file} is {getsize(file)/1024/1024} MiB")
                 attachments[basename(file).replace('.log', '_log.txt')] = \
                     encode_file_to_base64_string(file)
             except Exception as e:
@@ -148,11 +149,11 @@ class SupportSkill(NeonSkill):
         :param diagnostics: diagnostic data to format into the email.
         :returns: email body to send
         """
-        return '\n\n'.join((self.translate("email_intro",
-                                           {"email": self.support_email}),
+        return '\n\n'.join((self.resources.render_dialog("email_intro",
+                                                         {"email": self.support_email}),
                             diagnostics.get('user_description') or
                             "No Description Provided",
-                            self.translate("email_signature")))
+                            self.resources.render_dialog("email_signature")))
 
     def _check_service_status(self, message: Message = None) -> dict:
         """
