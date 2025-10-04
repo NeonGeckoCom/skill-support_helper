@@ -98,6 +98,7 @@ class SupportSkill(NeonSkill):
                                self._format_email_body(diagnostic_info),
                                message, email_addr,
                                attachments=attachment_files):
+                self.gui.show_text(f"Email sent to {self.support_email} from {email_addr}")
                 self.speak_dialog("complete",
                                   {"email": email_addr},
                                   private=True)
@@ -106,11 +107,13 @@ class SupportSkill(NeonSkill):
             if self.send_email(self.resources.render_dialog("email_title"),
                                self._format_email_body(diagnostic_info),
                                message, email_addr):
+                self.gui.show_text(f"Email sent to {self.support_email} from {email_addr}")
                 self.speak_dialog("complete",
                                   {"email": email_addr},
                                   private=True)
             else:
-                LOG.error(f"Email Failed to send!")
+                LOG.error("Email failed to send!")
+                self.gui.show_text(f"Email to {self.support_email} from {email_addr} failed to send")
                 self.speak_dialog("email_error", private=True)
         else:
             self.speak_dialog("cancelled", private=True)
